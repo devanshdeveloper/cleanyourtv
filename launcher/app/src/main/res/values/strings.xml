@@ -145,4 +145,39 @@
     <!-- Cinematic top shelf (cinematic_home): the line under the focused dock app's name; %1$s is when it was
          last opened, e.g. "5 minutes ago" or "yesterday, 9:40 pm". -->
     <string name="last_opened">Last opened %1$s</string>
+
+    <!-- Additional Launcher Settings options: Group 1 (Look & Theme) -->
+    <string name="setting_state">%1$s: %2$s</string>
+    <string name="settings_section_look">Look and theme</string>
+    <string name="opt_dock_glass">Dock frosted glass</string>
+    <string name="opt_dock_even_padding">Dock even padding</string>
+    <string name="opt_dock_title">Dock title</string>
+    <string name="opt_always_show_names">Always show app names</string>
+    <string name="opt_wallpaper_true_color">Wallpaper 32-bit color</string>
+    <string name="opt_wallpaper_captions">Wallpaper captions</string>
+    <string name="opt_cinematic_home">Cinematic home</string>
+    <string name="opt_ambient_glow">Ambient glow</string>
+    <string name="opt_app_glow">App glow</string>
+    <string name="opt_glow_style">Glow style</string>
+    <string name="opt_sky_intensity">Sky backdrop intensity</string>
+    <string name="opt_home_idle_clock">Idle clock after</string>
+    <string name="glow_radial">Radial</string>
+    <string name="glow_horizon">Horizon</string>
+    <string name="minutes_unit">%1$d min</string>
+
+    <!-- Additional Launcher Settings options: Group 2 (Dock & Top Bar) -->
+    <string name="settings_section_dock_top">Dock and top bar</string>
+    <string name="opt_fill_dock">Fill empty dock slots</string>
+    <string name="opt_dock_row">Show dock row</string>
+    <string name="opt_top_menu">Show top bar</string>
+    <string name="opt_show_network_pill">Network status pill</string>
+    <string name="opt_show_inputs_pill">Inputs pill</string>
+    <string name="opt_icon_only_buttons">Icon-only top buttons</string>
+    <string name="opt_icon_only_inputs">Icon-only inputs button</string>
+    <string name="opt_library_button">App library button in top bar</string>
+    <string name="opt_wifi_label_width">Wi-Fi pill label width</string>
+    <string name="opt_launcher_settings_button">Settings button opens launcher settings</string>
+    <string name="opt_reorder_button">Show reorder button</string>
+    <string name="opt_show_home_settings_shortcut">Home settings shortcut</string>
+    <string name="dp_unit">%1$d dp</string>
 </resources>

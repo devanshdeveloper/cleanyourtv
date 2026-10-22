@@ -111,6 +111,12 @@
             android:textColor="#FFACB8C1"
             android:textSize="14sp" />
 
+        <LinearLayout
+            android:id="@+id/additionalSettingsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
         <TextView
             android:id="@+id/followThemeChoice"
             style="@style/SettingsRow"

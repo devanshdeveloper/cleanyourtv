@@ -46,6 +46,17 @@ final class Config {
      */
     static final String SETTINGS_REVISION_KEY = "settings_revision";
 
+    static final String[] ON_TV_KEYS = {
+            "columns", ROWS_BELOW_DOCK_KEY, "animations", "advanced_effects",
+            WALLPAPER_CHOICE_KEY, DOCK_OPACITY_KEY,
+            "dock_glass", "dock_even_padding", "dock_title", "always_show_names",
+            "wallpaper_true_color", "wallpaper_captions", "cinematic_home",
+            "ambient_glow", "app_glow", "glow_style", "sky_intensity", "home_idle_clock_minutes",
+            "fill_dock", "dock_row", "top_menu", "show_network_pill", "show_inputs_pill",
+            "icon_only_buttons", "icon_only_inputs", "library_button", "wifi_label_width",
+            "launcher_settings_button", "reorder_button", "show_home_settings_shortcut"
+    };
+
     /** True when Launcher settings changed something since Home was built at revision {@code seen}. */
     static boolean settingsChanged(long seen, long current) {
         return seen != current;
@@ -429,6 +440,30 @@ final class Config {
         if (chosenRows >= 0 && chosenRows <= 3) rowsBelow = chosenRows;
         animations = choices.getBoolean("animations", animations);
         advancedEffects = choices.getBoolean("advanced_effects", advancedEffects);
+        dockGlass = choices.getBoolean("dock_glass", dockGlass);
+        dockEvenPadding = choices.getBoolean("dock_even_padding", dockEvenPadding);
+        dockTitle = choices.getBoolean("dock_title", dockTitle);
+        alwaysShowNames = choices.getBoolean("always_show_names", alwaysShowNames);
+        wallpaperTrueColor = choices.getBoolean("wallpaper_true_color", wallpaperTrueColor);
+        wallpaperCaptions = choices.getBoolean("wallpaper_captions", wallpaperCaptions);
+        cinematic = choices.getBoolean("cinematic_home", cinematic);
+        ambientGlow = choices.getBoolean("ambient_glow", ambientGlow);
+        appGlow = choices.getBoolean("app_glow", appGlow);
+        glowStyle = choices.getString("glow_style", glowStyle);
+        skyIntensity = choices.getInt("sky_intensity", skyIntensity);
+        idleClockMinutes = choices.getInt("home_idle_clock_minutes", idleClockMinutes);
+        fillDock = choices.getBoolean("fill_dock", fillDock);
+        dockRow = choices.getBoolean("dock_row", dockRow);
+        topMenu = choices.getBoolean("top_menu", topMenu);
+        showNetworkPill = choices.getBoolean("show_network_pill", showNetworkPill);
+        showInputsPill = choices.getBoolean("show_inputs_pill", showInputsPill);
+        iconOnlyButtons = choices.getBoolean("icon_only_buttons", iconOnlyButtons);
+        iconOnlyInputs = choices.getBoolean("icon_only_inputs", iconOnlyInputs);
+        libraryButton = choices.getBoolean("library_button", libraryButton);
+        wifiLabelWidth = choices.getInt("wifi_label_width", wifiLabelWidth);
+        launcherSettingsButton = choices.getBoolean("launcher_settings_button", launcherSettingsButton);
+        reorderButton = choices.getBoolean("reorder_button", reorderButton);
+        homeSettings = choices.getBoolean("show_home_settings_shortcut", homeSettings);
         File wallpaper = dir != null ? new File(dir, WALLPAPER_NAME) : null;
         if (wallpaper != null && !(wallpaper.isFile() && wallpaper.length() > 0)) wallpaper = null;
         // A theme can also switch the wallpaper off while the file is still there.
@@ -512,14 +547,14 @@ final class Config {
             // Existing preferences survive an app upgrade, unless the first launch follows an
             // explicit theme push or reset by the updated tools.
             SharedPreferences.Editor editor = choices.edit();
-            if (!"absent".equals(token)) editor.remove("columns").remove("animations")
-                    .remove("advanced_effects").remove(ROWS_BELOW_DOCK_KEY).remove(WALLPAPER_CHOICE_KEY)
-                    .remove(DOCK_OPACITY_KEY);
+            if (!"absent".equals(token)) {
+                for (String key : ON_TV_KEYS) editor.remove(key);
+            }
             editor.putString(THEME_SIGNATURE_KEY, signature).commit();
         } else if (!seen.equals(signature)) {
-            choices.edit().remove("columns").remove("animations").remove("advanced_effects")
-                    .remove(ROWS_BELOW_DOCK_KEY).remove(WALLPAPER_CHOICE_KEY).remove(DOCK_OPACITY_KEY)
-                    .putString(THEME_SIGNATURE_KEY, signature).commit();
+            SharedPreferences.Editor editor = choices.edit();
+            for (String key : ON_TV_KEYS) editor.remove(key);
+            editor.putString(THEME_SIGNATURE_KEY, signature).commit();
         }
     }
 
