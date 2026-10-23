@@ -44,7 +44,7 @@
     <string name="no_module_cards">Brak zainstalowanych kart modułów</string>
     <string name="card_app_name">Aplikacja: %1$s</string>
     <string name="card_state_shown">Widoczna</string>
-    <string name="card_state_over_limit">Widoczna, ponad limit 8</string>
+    <string name="card_state_over_limit">Widoczna, ponad limit %1$d</string>
     <string name="card_state_hidden">Ukryta</string>
     <string name="card_state_new">Nowa</string>
     <string name="card_state_new_key">Nowy klucz</string>

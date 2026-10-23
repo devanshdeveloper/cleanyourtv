@@ -44,7 +44,7 @@
     <string name="no_module_cards">لا توجد بطاقات وحدات مثبّتة</string>
     <string name="card_app_name">التطبيق: %1$s</string>
     <string name="card_state_shown">معروضة</string>
-    <string name="card_state_over_limit">معروضة، فوق الحد الأقصى وهو 8</string>
+    <string name="card_state_over_limit">معروضة، فوق الحد الأقصى وهو %1$d</string>
     <string name="card_state_hidden">مخفية</string>
     <string name="card_state_new">جديدة</string>
     <string name="card_state_new_key">مفتاح جديد</string>

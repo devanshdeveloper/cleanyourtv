@@ -62,7 +62,7 @@
     <string name="no_module_cards">কোনো মডিউল কার্ড ইনস্টল করা নেই</string>
     <string name="card_app_name">অ্যাপ: %1$s</string>
     <string name="card_state_shown">দেখানো হচ্ছে</string>
-    <string name="card_state_over_limit">দেখানো হচ্ছে, ৮টির সীমার বেশি</string>
+    <string name="card_state_over_limit">দেখানো হচ্ছে, %1$dটির সীমার বেশি</string>
     <string name="card_state_hidden">লুকানো</string>
     <string name="card_state_new">নতুন</string>
     <string name="card_state_new_key">নতুন কি</string>

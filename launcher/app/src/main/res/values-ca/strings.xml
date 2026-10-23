@@ -91,7 +91,7 @@
     <string name="no_module_cards">No hi ha cap targeta de mòdul instal·lada</string>
     <string name="card_app_name">Aplicació: %1$s</string>
     <string name="card_state_shown">Visible</string>
-    <string name="card_state_over_limit">Visible, per sobre del límit de 8</string>
+    <string name="card_state_over_limit">Visible, per sobre del límit de %1$d</string>
     <string name="card_state_hidden">Amagada</string>
     <string name="card_state_new">Nova</string>
     <string name="card_state_new_key">Clau nova</string>

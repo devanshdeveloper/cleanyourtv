@@ -67,7 +67,7 @@
     <string name="no_module_cards">Geen modulekaarten geïnstalleerd</string>
     <string name="card_app_name">App: %1$s</string>
     <string name="card_state_shown">Getoond</string>
-    <string name="card_state_over_limit">Getoond, boven de limiet van 8</string>
+    <string name="card_state_over_limit">Getoond, boven de limiet van %1$d</string>
     <string name="card_state_hidden">Verborgen</string>
     <string name="card_state_new">Nieuw</string>
     <string name="card_state_new_key">Nieuwe sleutel</string>

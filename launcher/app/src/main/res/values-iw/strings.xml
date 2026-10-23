@@ -57,7 +57,7 @@
     <string name="no_module_cards">לא מותקנים כרטיסי הרחבות</string>
     <string name="card_app_name">אפליקציה: %1$s</string>
     <string name="card_state_shown">מוצג</string>
-    <string name="card_state_over_limit">מוצג, מעבר למגבלה של 8</string>
+    <string name="card_state_over_limit">מוצג, מעבר למגבלה של %1$d</string>
     <string name="card_state_hidden">מוסתר</string>
     <string name="card_state_new">חדש</string>
     <string name="card_state_new_key">מפתח חדש</string>

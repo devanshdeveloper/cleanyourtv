@@ -62,7 +62,7 @@
     <string name="no_module_cards">Nessuna scheda modulo installata</string>
     <string name="card_app_name">App: %1$s</string>
     <string name="card_state_shown">Visibile</string>
-    <string name="card_state_over_limit">Visibile, oltre il limite di 8</string>
+    <string name="card_state_over_limit">Visibile, oltre il limite di %1$d</string>
     <string name="card_state_hidden">Nascosta</string>
     <string name="card_state_new">Nuova</string>
     <string name="card_state_new_key">Nuova chiave</string>

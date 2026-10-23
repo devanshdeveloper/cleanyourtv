@@ -67,7 +67,7 @@
     <string name="no_module_cards">Ingen modulkort er installert</string>
     <string name="card_app_name">App: %1$s</string>
     <string name="card_state_shown">Vist</string>
-    <string name="card_state_over_limit">Vist, over grensen på 8</string>
+    <string name="card_state_over_limit">Vist, over grensen på %1$d</string>
     <string name="card_state_hidden">Skjult</string>
     <string name="card_state_new">Nytt</string>
     <string name="card_state_new_key">Ny nøkkel</string>

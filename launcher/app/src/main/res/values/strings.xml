@@ -86,7 +86,7 @@
     <string name="no_module_cards">No module cards installed</string>
     <string name="card_app_name">App: %1$s</string>
     <string name="card_state_shown">Shown</string>
-    <string name="card_state_over_limit">Shown, over the limit of 8</string>
+    <string name="card_state_over_limit">Shown, over the limit of %1$d</string>
     <string name="card_state_hidden">Hidden</string>
     <string name="card_state_new">New</string>
     <string name="card_state_new_key">New key</string>

@@ -60,7 +60,7 @@
     <string name="no_module_cards">Chưa cài thẻ mô-đun nào</string>
     <string name="card_app_name">Ứng dụng: %1$s</string>
     <string name="card_state_shown">Đang hiện</string>
-    <string name="card_state_over_limit">Đang hiện, vượt giới hạn 8</string>
+    <string name="card_state_over_limit">Đang hiện, vượt giới hạn %1$d</string>
     <string name="card_state_hidden">Đang ẩn</string>
     <string name="card_state_new">Mới</string>
     <string name="card_state_new_key">Khóa mới</string>

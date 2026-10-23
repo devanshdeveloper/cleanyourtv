@@ -57,7 +57,7 @@
     <string name="no_module_cards">沒有安裝任何模組卡片</string>
     <string name="card_app_name">App：%1$s</string>
     <string name="card_state_shown">顯示</string>
-    <string name="card_state_over_limit">顯示，但超過 8 張的上限</string>
+    <string name="card_state_over_limit">顯示，但超過 %1$d 張的上限</string>
     <string name="card_state_hidden">隱藏</string>
     <string name="card_state_new">新的</string>
     <string name="card_state_new_key">新金鑰</string>

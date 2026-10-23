@@ -318,13 +318,13 @@ public class CardsTest {
         all.add(card("io.example.new", "Aardvark", Cards.State.NEW));
         all.add(card("io.example.z", "beta", Cards.State.SHOWN));
         all.add(card("io.example.y", "Beta", Cards.State.SHOWN));
-        for (int i = 0; i < 9; i++) all.add(card("io.example.p" + i, "Card " + (char) ('a' + i), Cards.State.SHOWN));
+        for (int i = 0; i < 55; i++) all.add(card("io.example.p" + String.format("%02d", i), "Card " + String.format("%02d", i), Cards.State.SHOWN));
         List<Cards.Card> shown = Cards.shown(all);
         assertEquals(Cards.MAX_SHOWN, shown.size());
         assertEquals("io.example.y", shown.get(0).pkg);     // "Beta" and "beta" tie on label, package decides
         assertEquals("io.example.z", shown.get(1).pkg);
-        assertEquals("Card a", shown.get(2).label);
-        assertEquals("Card f", shown.get(7).label);
+        assertEquals("Card 00", shown.get(2).label);
+        assertEquals("Card 47", shown.get(49).label);
         for (Cards.Card c : shown) assertEquals(Cards.State.SHOWN, c.state);
     }
 

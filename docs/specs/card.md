@@ -94,9 +94,9 @@ any violation drops that one card, with a log line and no other effect.
 
 | What | Limit |
 | :- | :- |
-| Cards read per package list refresh | 32, the rest are ignored |
-| Cards shown as tiles | 8, by label; the rest are listed as over the limit in the Module cards list and keep their ordinary tile |
-| Decisions remembered in `cards.json` | 128, the oldest are dropped beyond that |
+| Cards read per package list refresh | 64, the rest are ignored |
+| Cards shown as tiles | 50, by label; the rest are listed as over the limit in the Module cards list and keep their ordinary tile |
+| Decisions remembered in `cards.json` | 256, the oldest are dropped beyond that |
 | XML events walked per card | 64 |
 | XML nesting depth | 2 (`<card>` and its direct children) |
 | Attributes on `<card>` | 16 |

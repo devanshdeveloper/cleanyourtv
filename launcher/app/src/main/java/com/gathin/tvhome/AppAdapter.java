@@ -68,8 +68,11 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         final String label;
         final ComponentName component;
         final String pkg;
-        final Drawable banner;
-        final Drawable icon;
+        final ResolveInfo ri;
+        final String customBanner;
+        Drawable banner;
+        Drawable icon;
+        boolean artworkLoaded;
         /** Text under the tile when it is focused in the grid: the label, plus the caption for a card. */
         final String name;
         /** Ambient glow colour; 0 until sampled from the banner, or the card's accent from the start. */
@@ -84,10 +87,31 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             this.label = label;
             this.component = component;
             this.pkg = component.getPackageName();
+            this.ri = null;
+            this.customBanner = null;
             this.banner = banner;
             this.icon = icon;
+            this.artworkLoaded = (banner != null || icon != null);
             this.name = caption == null ? label : label + " \u00B7 " + caption;
             this.ambient = accent;
+        }
+
+        private Entry(int kind, String label, ComponentName component, ResolveInfo ri, String customBanner, String caption, int accent, boolean lazy) {
+            this.kind = kind;
+            this.label = label;
+            this.component = component;
+            this.pkg = component.getPackageName();
+            this.ri = ri;
+            this.customBanner = customBanner;
+            this.banner = null;
+            this.icon = null;
+            this.artworkLoaded = false;
+            this.name = caption == null ? label : label + " \u00B7 " + caption;
+            this.ambient = accent;
+        }
+
+        static Entry card(String label, ComponentName component, ResolveInfo ri, String customBanner, String caption, int accent) {
+            return new Entry(CARD, label, component, ri, customBanner, caption, accent, true);
         }
     }
 
@@ -281,14 +305,15 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             String label = card != null ? card.label : Cards.cleanLabel(
                     appLabels.containsKey(pkg) ? appLabels.get(pkg) : String.valueOf(ri.loadLabel(pm)), pkg);
             if (!seen.add(pkg + '\n' + label)) continue;
-            Drawable banner = bundledBanner(appBanners.get(pkg));
-            if (banner == null) banner = loadBanner(pm, ri);
-            // The icon is only drawn (and sampled for the glow) when there is no banner, so a tile with a
-            // banner skips loading and decoding it.
-            Drawable icon = banner == null ? ri.loadIcon(pm) : null;
             if (card != null) {
-                fresh.add(new Entry(Entry.CARD, label, component, banner, icon, card.caption, card.accent));
+                // Cards load artwork lazily on bind to keep memory bounded with up to 50 cards on 1 GB RAM.
+                fresh.add(Entry.card(label, component, ri, appBanners.get(pkg), card.caption, card.accent));
             } else {
+                Drawable banner = bundledBanner(appBanners.get(pkg));
+                if (banner == null) banner = loadBanner(pm, ri);
+                // The icon is only drawn (and sampled for the glow) when there is no banner, so a tile with a
+                // banner skips loading and decoding it.
+                Drawable icon = banner == null ? ri.loadIcon(pm) : null;
                 fresh.add(new Entry(label, component, banner, icon));
             }
         }
@@ -359,6 +384,18 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return width <= 0 || height <= 0 || width >= height * 1.4f;
     }
 
+    /** Loads banner or icon on demand for bound cards to avoid holding 50+ bitmaps in memory. */
+    void ensureArtwork(Entry e) {
+        if (e.artworkLoaded || e.kind == Entry.EMPTY) return;
+        e.artworkLoaded = true;
+        PackageManager pm = ctx.getPackageManager();
+        Drawable banner = bundledBanner(e.customBanner);
+        if (banner == null && e.ri != null) banner = loadBanner(pm, e.ri);
+        Drawable icon = banner == null && e.ri != null ? e.ri.loadIcon(pm) : null;
+        e.banner = banner;
+        e.icon = icon;
+    }
+
     /** Lets go of every tile and its artwork (Home is in the background and memory is short). */
     void clear() {
         items.clear();
@@ -410,6 +447,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (isLibraryAt(position)) return;
         Holder h = (Holder) holder;
         Entry e = items.get(position);
+        h.entry = e;
         if (e.kind == Entry.EMPTY) {
             // A free dock slot keeps its place in the row and the band, but shows nothing and takes no focus.
             h.card.setVisibility(View.INVISIBLE);
@@ -421,6 +459,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             h.card.setOnLongClickListener(null);
             return;
         }
+        ensureArtwork(e);
         h.card.setVisibility(View.VISIBLE);
         h.card.setFocusable(true);
         h.name.setText(e.name);
@@ -465,6 +504,22 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             }
             return true;
         });
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder instanceof Holder) {
+            Holder h = (Holder) holder;
+            h.banner.setImageDrawable(null);
+            h.icon.setImageDrawable(null);
+            if (h.entry != null && h.entry.kind == Entry.CARD) {
+                h.entry.banner = null;
+                h.entry.icon = null;
+                h.entry.artworkLoaded = false;
+            }
+            h.entry = null;
+        }
     }
 
     /** Opens the tile's activity by explicit component, with no extras: a card can name nothing else. */
@@ -608,6 +663,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     Drawable artworkAt(int position) {
         if (position < 0 || position >= items.size()) return null;
         Entry e = items.get(position);
+        ensureArtwork(e);
         return e.banner != null ? e.banner : e.icon;
     }
 
@@ -619,6 +675,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     int ambientColorAt(int position) {
         if (position < 0 || position >= items.size()) return 0xFF444444;
         Entry e = items.get(position);
+        ensureArtwork(e);
         if (e.ambient == 0) e.ambient = vividColor(e.banner != null ? e.banner : e.icon);
         return e.ambient;
     }
@@ -687,6 +744,7 @@ public class AppAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         /** Alpha of the name while the tile is not focused (always_show_names). */
         final float restNameAlpha;
         final boolean overshoot;
+        Entry entry;
 
         Holder(View v, TileListener listener, boolean animations, boolean advancedEffects,
                boolean reducedMotion, float restNameAlpha, boolean overshoot) {

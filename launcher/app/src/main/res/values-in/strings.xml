@@ -66,7 +66,7 @@
     <string name="no_module_cards">Tidak ada kartu modul terpasang</string>
     <string name="card_app_name">Aplikasi: %1$s</string>
     <string name="card_state_shown">Ditampilkan</string>
-    <string name="card_state_over_limit">Ditampilkan, melebihi batas 8</string>
+    <string name="card_state_over_limit">Ditampilkan, melebihi batas %1$d</string>
     <string name="card_state_hidden">Disembunyikan</string>
     <string name="card_state_new">Baru</string>
     <string name="card_state_new_key">Kunci baru</string>

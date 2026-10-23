@@ -94,7 +94,7 @@
     <string name="no_module_cards">No hay tarjetas de módulos instaladas</string>
     <string name="card_app_name">Aplicación: %1$s</string>
     <string name="card_state_shown">Visible</string>
-    <string name="card_state_over_limit">Visible, por encima del límite de 8</string>
+    <string name="card_state_over_limit">Visible, por encima del límite de %1$d</string>
     <string name="card_state_hidden">Oculta</string>
     <string name="card_state_new">Nueva</string>
     <string name="card_state_new_key">Clave nueva</string>

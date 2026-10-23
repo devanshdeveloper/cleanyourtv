@@ -3095,7 +3095,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 Cards.Card now = cardFor(pkg);
                 if (now == null) return null;
                 decideCard(now, now.state != Cards.State.SHOWN);
-                // Every row, not only this one: a toggle can move another card across the limit of 8.
+                // Every row, not only this one: a toggle can move another card across the limit of 50.
                 updateCardStates(rows);
                 return null;
             }, null));
@@ -3129,11 +3129,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
     }
 
-    /** The row's state: a card the owner set to Shown but which is beyond the eight drawn says so. */
+    /** The row's state: a card the owner set to Shown but which is beyond the limit drawn says so. */
     private String stateText(Cards.Card card, boolean drawn) {
         switch (card.state) {
             case SHOWN:
-                return getString(drawn ? R.string.card_state_shown : R.string.card_state_over_limit);
+                return drawn ? getString(R.string.card_state_shown) : getString(R.string.card_state_over_limit, Cards.MAX_SHOWN);
             case HIDDEN:
                 return getString(R.string.card_state_hidden);
             case RESIGNED:

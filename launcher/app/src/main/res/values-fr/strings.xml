@@ -44,7 +44,7 @@
     <string name="no_module_cards">Aucune carte de module installée</string>
     <string name="card_app_name">Appli : %1$s</string>
     <string name="card_state_shown">Affichée</string>
-    <string name="card_state_over_limit">Affichée, au-delà de la limite de 8</string>
+    <string name="card_state_over_limit">Affichée, au-delà de la limite de %1$d</string>
     <string name="card_state_hidden">Masquée</string>
     <string name="card_state_new">Nouvelle</string>
     <string name="card_state_new_key">Nouvelle clé</string>

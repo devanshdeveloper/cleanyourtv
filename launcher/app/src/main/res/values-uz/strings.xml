@@ -67,7 +67,7 @@
     <string name="no_module_cards">Modul kartalari oʻrnatilmagan</string>
     <string name="card_app_name">Ilova: %1$s</string>
     <string name="card_state_shown">Koʻrsatilgan</string>
-    <string name="card_state_over_limit">Koʻrsatilgan, 8 ta chegaradan ortiq</string>
+    <string name="card_state_over_limit">Koʻrsatilgan, %1$d ta chegaradan ortiq</string>
     <string name="card_state_hidden">Yashirin</string>
     <string name="card_state_new">Yangi</string>
     <string name="card_state_new_key">Yangi kalit</string>

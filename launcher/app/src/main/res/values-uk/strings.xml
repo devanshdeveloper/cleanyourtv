@@ -83,7 +83,7 @@
     <string name="no_module_cards">Немає застосунків з картками</string>
     <string name="card_app_name">Застосунок: %1$s</string>
     <string name="card_state_shown">Показано</string>
-    <string name="card_state_over_limit">Увімкнено, але не показано: ліміт 8</string>
+    <string name="card_state_over_limit">Увімкнено, але не показано: ліміт %1$d</string>
     <string name="card_state_hidden">Приховано</string>
     <string name="card_state_new">Нова</string>
     <string name="card_state_new_key">Новий ключ</string>

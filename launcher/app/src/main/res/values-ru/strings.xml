@@ -61,7 +61,7 @@
     <string name="no_module_cards">Нет приложений с карточками</string>
     <string name="card_app_name">Приложение: %1$s</string>
     <string name="card_state_shown">Показывается</string>
-    <string name="card_state_over_limit">Включена, но не показана: лимит 8</string>
+    <string name="card_state_over_limit">Включена, но не показана: лимит %1$d</string>
     <string name="card_state_hidden">Скрыта</string>
     <string name="card_state_new">Новая</string>
     <string name="card_state_new_key">Новый ключ</string>

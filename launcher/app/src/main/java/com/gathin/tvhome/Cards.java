@@ -58,9 +58,9 @@ final class Cards {
     static final String TAG = "TvHomeCards";
 
     // Limits. Declared: cards read per resume. Shown: cards rendered as tiles. Records: decisions remembered.
-    static final int MAX_DECLARED = 32;
-    static final int MAX_SHOWN = 8;
-    static final int MAX_RECORDS = 128;
+    static final int MAX_DECLARED = 64;
+    static final int MAX_SHOWN = 50;
+    static final int MAX_RECORDS = 256;
     // XML: events walked and nesting depth before the card is rejected; attributes read on the root.
     static final int MAX_EVENTS = 64;
     static final int MAX_DEPTH = 2;
