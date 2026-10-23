@@ -64,6 +64,8 @@ public final class LauncherSettingsActivity extends ThemeActivity {
             "default", "aurora", "dussehra", "glass", "scenes", "six-columns"
     };
 
+    private static final int[] DOCK_OPACITIES = {100, 70, 50, 30};
+
     private ThemeBackdrop backdrop;
     private SharedPreferences choices;
     private Config config;
@@ -101,10 +103,41 @@ public final class LauncherSettingsActivity extends ThemeActivity {
         subpageReset.setOnClickListener(v -> resetCurrentCategory());
 
         findViewById(R.id.followThemeChoice).setOnClickListener(v -> followThemeAndResetAll());
+        View defaultHome = findViewById(R.id.defaultHomeChoice);
+        if (defaultHome != null) {
+            defaultHome.setOnClickListener(v ->
+                    open(SystemSettings.intent(this, Settings.ACTION_HOME_SETTINGS)));
+        }
         findViewById(R.id.tvSettingsChoice).setOnClickListener(v ->
                 open(SystemSettings.intent(this, Settings.ACTION_SETTINGS)));
+        View reorderChoice = findViewById(R.id.reorderChoice);
+        if (reorderChoice != null) {
+            reorderChoice.setOnClickListener(v -> {
+                Intent data = new Intent().putExtra(EXTRA_REORDER, true);
+                setResult(RESULT_OK, data);
+                finish();
+            });
+        }
 
+        updateLegacyRowLabels();
         buildCategoriesList();
+    }
+
+    private void updateLegacyRowLabels() {
+        TextView wallpaperChoice = findViewById(R.id.wallpaperChoice);
+        if (wallpaperChoice != null) {
+            wallpaperChoice.setText(getString(R.string.wallpaper_state, getWallpaperDisplay()));
+        }
+        TextView animationsChoice = findViewById(R.id.animationsChoice);
+        if (animationsChoice != null) {
+            animationsChoice.setText(getString(R.string.animations_state,
+                    getString(config.animations ? R.string.on : R.string.off)));
+        }
+        TextView advancedChoice = findViewById(R.id.advancedChoice);
+        if (advancedChoice != null) {
+            advancedChoice.setText(getString(R.string.advanced_effects_state,
+                    getString(config.advancedEffects ? R.string.on : R.string.off)));
+        }
     }
 
     @Override
@@ -519,7 +552,7 @@ public final class LauncherSettingsActivity extends ThemeActivity {
     }
 
     private void showDockOpacityPicker() {
-        int[] values = {100, 70, 50, 30};
+        int[] values = DOCK_OPACITIES;
         String[] options = {"100%", "70%", "50%", "30%"};
         int checked = 0;
         for (int i = 0; i < values.length; i++) {
