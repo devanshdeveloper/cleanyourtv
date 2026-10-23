@@ -462,15 +462,15 @@ public final class LauncherSettingsActivity extends ThemeActivity {
 
     // --- Dialog Pickers ---
     private void showThemePicker() {
-        String current = choices.getString("theme_preset", "default");
+        String current = choices.getString("theme_preset", null);
         String[] labels = new String[THEME_PRESETS.length + 1];
-        int checked = 0;
+        int checked = "built-in".equals(current) || current == null && !config.overlayApplied
+                ? THEME_PRESETS.length : -1;
         for (int i = 0; i < THEME_PRESETS.length; i++) {
             labels[i] = THEME_PRESETS[i].substring(0, 1).toUpperCase() + THEME_PRESETS[i].substring(1);
             if (THEME_PRESETS[i].equalsIgnoreCase(current)) checked = i;
         }
         labels[THEME_PRESETS.length] = getString(R.string.theme_reset_choice);
-        if (choices.getString("theme_preset", null) == null) checked = THEME_PRESETS.length;
 
         ThemeStyle.dialog(this)
                 .setTitle(R.string.theme_label)
@@ -478,7 +478,7 @@ public final class LauncherSettingsActivity extends ThemeActivity {
                     dialog.dismiss();
                     SharedPreferences.Editor editor = choices.edit();
                     for (String key : Config.ON_TV_KEYS) editor.remove(key);
-                    if (which != THEME_PRESETS.length) editor.putString("theme_preset", THEME_PRESETS[which]);
+                    editor.putString("theme_preset", which == THEME_PRESETS.length ? "built-in" : THEME_PRESETS[which]);
                     editor.commit();
                     changed();
                     populateCategory(CAT_APPEARANCE);
@@ -789,7 +789,9 @@ public final class LauncherSettingsActivity extends ThemeActivity {
 
     private String getThemeDisplay() {
         String preset = choices.getString("theme_preset", null);
-        return preset != null ? preset.substring(0, 1).toUpperCase() + preset.substring(1) : getString(R.string.theme_built_in);
+        if ("built-in".equals(preset)) return getString(R.string.theme_built_in);
+        if (preset != null && !preset.isEmpty()) return preset.substring(0, 1).toUpperCase() + preset.substring(1);
+        return getString(config.overlayApplied ? R.string.wallpaper_theme_default : R.string.theme_built_in);
     }
 
     private String getWallpaperDisplay() {

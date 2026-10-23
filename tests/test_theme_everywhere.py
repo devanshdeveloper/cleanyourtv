@@ -55,7 +55,9 @@ class ThemeEverywhereTest(unittest.TestCase):
         settings = (JAVA / 'LauncherSettingsActivity.java').read_text()
         self.assertNotIn('minimalJson', settings)
         self.assertNotIn('FileOutputStream(', settings)
-        self.assertIn('editor.putString("theme_preset", THEME_PRESETS[which])', settings)
+        self.assertIn('which == THEME_PRESETS.length ? "built-in" : THEME_PRESETS[which]', settings)
+        self.assertIn('config.overlayApplied ? R.string.wallpaper_theme_default', settings)
+        self.assertIn('if ("built-in".equals(name)) return null;', (JAVA / 'ThemePresets.java').read_text())
 
     def test_every_on_tv_write_is_cleared_by_push_reset_and_follow_theme(self):
         settings = (JAVA / 'LauncherSettingsActivity.java').read_text()

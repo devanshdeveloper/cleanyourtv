@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 /** Presets bundled directly from themes/. Never rewrites a pushed theme. */
 final class ThemePresets {
     static JSONObject read(Context context, String name, JSONObject fallback) {
+        if ("built-in".equals(name)) return null;
         if (!name.matches("default|aurora|dussehra|glass|scenes|six-columns")) return fallback;
         try (InputStream in = context.getAssets().open("themes/" + name + "/config.json")) {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();

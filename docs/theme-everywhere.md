@@ -28,6 +28,8 @@ Java citations in the investigation below are relative to
   already cleared the listed overrides (`Config.java:620-638`), and both tools
   issue unique revisions, including identical pushes and reset.
   Follow theme only removed that list (`LauncherSettingsActivity.java:804-813`).
+  Before this change the preset preference was picker metadata, not a Config
+  override: its omission caused stale labels, not a fresh-push precedence failure.
   The preset and all new visual overrides are now included. Library membership,
   dock order and module-card approvals intentionally retain their separate stores.
 - **d — CONFIRMED for visible settings and non-Home windows.** Home loads Config at
@@ -114,7 +116,10 @@ the existing Vietnamese system-family fallback is retained for missing glyphs.
    SDK levels and CI gate. No network feature or dependency was added.
 2. Resolve config.xml defaults, the selected theme, then on-TV choices. A selected
    preset is an on-TV theme-source choice; Follow theme returns to the untouched
-   pushed theme. A new push/reset clears that choice too.
+   pushed theme. A new push/reset clears that choice too. The picker's existing
+   Reset to built-in action selects config.xml through an on-TV override, rather
+   than deleting the pushed files; Follow theme can therefore recover the pushed
+   theme afterwards. A pushed overlay is displayed as Theme default, not Built-in.
 3. Bundle original preset configs and images through one Gradle Sync task. There
    is no hand-maintained second copy of those configs and no new tracked binary.
    Preset images are extracted to app-private storage once per app update.
