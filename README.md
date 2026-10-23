@@ -479,6 +479,11 @@ apps), which is why the report names that loss per package instead of calling it
 
 ## The launcher
 
+Themes style launcher-owned screens, panels, dialogs, glyphs and app-tile containers. App icons can
+be masked to a theme shape while keeping their original colours. Recolouring another app's logo,
+and anything inside another app's own screens, are outside the launcher's scope. See the
+[theme consistency report](docs/theme-everywhere.md) for implementation and verification details.
+
 A small native home screen for Android TV: **about 474 KB**, plain Java, built for TVs with 1 GB of RAM.
 No blur, no video, no network permission, no background services.
 

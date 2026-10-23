@@ -1,0 +1,11 @@
+{
+  "background_color": "#F5F5F7",
+  "surface_color": "#FFFFFF",
+  "accent_color": "#2460A0",
+  "icon_shape": "circle",
+  "tile_backplate": "solid",
+  "wallpaper": false,
+  "app_library": true,
+  "tile_menu": true,
+  "launcher_settings_button": true
+}

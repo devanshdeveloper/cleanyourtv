@@ -1,0 +1,14 @@
+{
+  "background_color": "#143A32",
+  "surface_color": "#102C28",
+  "accent_color": "#FFC870",
+  "glow_color": "#50C8B0",
+  "icon_shape": "squircle",
+  "tile_backplate": "solid",
+  "corner_radius": 24,
+  "wallpaper": true,
+  "wallpaper_dim": 40,
+  "app_library": true,
+  "tile_menu": true,
+  "launcher_settings_button": true
+}

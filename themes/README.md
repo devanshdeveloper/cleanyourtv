@@ -4,7 +4,12 @@ A theme is a folder with a `config.json` and, optionally, a `wallpaper.jpg`. Pus
 launcher's dock, layout and look on the TV without rebuilding the APK: the launcher reads
 `config.json` as an overlay over its built-in `config.xml` the next time it starts.
 Choices made in Launcher settings take priority until you choose Follow theme. Pushing a theme or
-using `tools/theme.sh --reset` also clears those on-TV column and motion choices.
+using `tools/theme.sh --reset` also clears all tracked on-TV choices, including presets and wallpaper picks.
+Follow theme restores the pushed theme; choosing a bundled preset never overwrites its files. The picker
+uses the actual configs and artwork from this folder, packaged at build time. Dated festivals still expire.
+The shared palette styles launcher screens, panels, dialogs, glyphs and tile containers. Third-party logos
+keep their own colours; a mask changes their outline only. Screens inside other apps are outside this scope.
+The implementation audit and device verification steps are in [theme-everywhere.md](../docs/theme-everywhere.md).
 
 ```bash
 TV_HOST=192.168.1.50 tools/theme.sh themes/aurora          # push a theme and restart Home
@@ -80,7 +85,17 @@ A new key needs one there in the same pull request.
 | `show_home_settings_shortcut` | bool | Keep the optional Default-home tile visible when the TV has a home picker; false by default |
 | `show_stats` | bool | One line under the clock with CPU, free memory and free storage. Off unless set |
 | `handle_view_inputs` | bool | Answer the system input switcher (`VIEW_INPUTS`, what the remote's Input button becomes) with the Inputs menu, for sets whose stock launcher was its only handler (Hisense huangshan); `false` by default so a TV with its own input picker never gets a chooser |
-| `background_color` | `#RRGGBB` | Colour behind everything; black by default |
+| `background_color` | string, `#RRGGBB` | Colour behind everything; default `#000000`, e.g. `"#F5F5F7"` for a light theme |
+| `surface_color` | string, `#RRGGBB` or `auto` | Panel and tile backplate colour; default `auto` selects `#1C1C1E` on dark backgrounds and `#F1F1F3` on light ones. Example `"#152A38"` |
+| `text_color` | string, `#RRGGBB` or `auto` | Primary UI text; default `auto` chooses black or white for contrast. An unreadable explicit colour falls back. Example `"#FFFFFF"` |
+| `text_secondary_color` | string, `#RRGGBB` or `auto` | Secondary text; default `auto`, with the same contrast floor. Example `"#DFE8EE"` |
+| `focus_color` | string, `#RRGGBB` or `auto` | Focus fill and rim; default white on dark backgrounds, `#202024` on light ones. Focused labels use contrasting ink. Example `"#FFE0A0"` |
+| `glow_color` | string, `#RRGGBB` or `auto` | Explicit glow override on all app tiles and the clock; `auto` (default) keeps Home's existing app-colour rules and uses the accent for the clock. Example `"#50C8B0"` |
+| `corner_radius` | integer, 0 to 48 | Tile and panel corner radius in dp; default 16. Example `24` |
+| `pill_radius` | integer, 0 to 48 | Pill corner radius in dp; default 21. Example `12` |
+| `spacing` | integer, 0 to 48 | Panel/dock spacing in dp; default 12. Example `16` |
+| `icon_shape` | string enum | `square` (default, preserves the app's existing outline), `rounded`, `circle`, or `squircle`; clips app icons without tinting. Example `"circle"` |
+| `tile_backplate` | string enum | `solid` (default, historical dark icon-tile fill), `glass`, or `none`; applies to dock, grid, cards and library. Example `"glass"` |
 | `sky_intensity` | 0 to 100 | Time-of-day backdrop: a dark gradient that follows the clock, 0 hides it (default) |
 | `wallpaper` | bool | Show `wallpaper.jpg` from the theme folder (`true`), or ignore it (`false`) |
 | `wallpaper_rotation_minutes` | 0 to 1440 | Rotate images in the theme's `wallpapers/` folder at this interval; 0 keeps the single-image behaviour. A negative or non-numeric value is ignored, and 0 means "no rotation", not "every minute" |
@@ -93,7 +108,7 @@ A new key needs one there in the same pull request.
 | `festival` | string | Turns on a festive skin: the network pill becomes a diya whose flame follows the connection, Inputs a temple bell, Settings a marigold, and the first Home of the day gets a petal shower. `dussehra` and `diwali` have built-in greetings |
 | `festival_until` | `YYYY-MM-DD` | Last day the festive skin shows; it switches itself off after that. A malformed date turns it off |
 | `greeting` | string | Replaces the time-of-day greeting while the festive skin is on |
-| `accent_color` | `#RRGGBB` | Colour of the focus glow while the festive skin is on; diya gold if not set |
+| `accent_color` | string, `#RRGGBB` | Shared selection, status and glyph accent; default `#6EC1FF`. Also supplies the festive glow when explicitly set (the festival retains its gold fallback). Example `"#FFB23C"` |
 | `settings_key_keycodes` | list of keycodes | Remote buttons that open Settings, for `HomeKeyService` (TCL Google TV gear: `[83]`) |
 | `settings_key_panel` | bool | Those buttons open a small quick settings panel (TV settings, Display, Network, Apps, Launcher settings) instead of the TV's Settings |
 | `settings_fallback_components` | list, `config.xml` only | Vendor screens tried in order when nothing usable answers the standard Settings action (Xiaomi China, TCL/FFALCON, and Fire OS, where the real menu lives in its launcher), each as `package/activity`; the first one whose package is installed wins, and when none is, the standard intent is sent anyway and may open nothing. Fire OS answers that intent with a `CTSDummy` stub, which counts as missing so the fallback runs. A package named here also has to be listed in the launcher's `<queries>` (Android 11 package visibility), so a set whose settings app is neither of these needs a build, not a theme push. Not read from a theme |

@@ -32,7 +32,8 @@ class Device:
             raise OSError("simulated transport failure")
         if os.environ.get("FAKE_CORRUPT") and command.startswith("echo '"):
             command = "echo 'QUJD' >>" + command.split(">>", 1)[1]
-        return subprocess.run(["/bin/sh", "-c", command], capture_output=True, text=True).stdout
+        sh = "sh" if os.name == "nt" else "/bin/sh"
+        return subprocess.run([sh, "-c", command], capture_output=True, text=True).stdout
 
     def close(self):
         pass
@@ -79,6 +80,12 @@ class B64PushTest(TempDirTest):
         path.write_bytes(data)
         return path
 
+    def remote_path(self, path):
+        p = Path(path).resolve()
+        if p.drive:
+            return f"/{p.drive[0].lower()}{p.as_posix()[len(p.drive):]}"
+        return p.as_posix()
+
     def test_missing_arguments_print_usage_without_tv_host(self):
         for args in ([], ["only-one"], ["a", "b", "c"]):
             with self.subTest(args=args):
@@ -101,20 +108,22 @@ class B64PushTest(TempDirTest):
         data = os.urandom(10000)   # several chunks at a 4096-byte payload
         target = self.remote_dir / "file.apk"
         target.write_bytes(b"old contents")
-        result = self.push(str(self.local(data)), str(target))
+        rem = self.remote_path(target)
+        result = self.push(str(self.local(data)), rem)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(target.read_bytes(), data)
         self.assertEqual(sorted(p.name for p in self.remote_dir.iterdir()), ["file.apk"],
                          "temporary files are cleaned up")
         first = self.commands()[0]
-        self.assertNotIn(f"rm -f '{target}' ", first + " ", "the target must not be deleted up front")
+        self.assertNotIn(f"rm -f '{rem}' ", first + " ", "the target must not be deleted up front")
         for command in self.commands():
-            self.assertIn(f"'{target}", command, "every remote path is single-quoted")
+            self.assertIn(f"'{rem}", command, "every remote path is single-quoted")
 
     def test_failed_checksum_leaves_the_original_intact(self):
         target = self.remote_dir / "file.apk"
         target.write_bytes(b"old contents")
-        result = self.push(str(self.local(os.urandom(5000))), str(target), FAKE_CORRUPT="1")
+        rem = self.remote_path(target)
+        result = self.push(str(self.local(os.urandom(5000))), rem, FAKE_CORRUPT="1")
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertIn("MISMATCH", result.stdout)
         self.assertEqual(target.read_bytes(), b"old contents")
@@ -125,20 +134,23 @@ class B64PushTest(TempDirTest):
             with self.subTest(phase=phase):
                 target = self.remote_dir / "file.apk"
                 target.write_bytes(b"old contents")
-                result = self.push(str(self.local(b"new contents")), str(target), FAKE_RAISE=phase)
+                rem = self.remote_path(target)
+                result = self.push(str(self.local(b"new contents")), rem, FAKE_RAISE=phase)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertEqual(target.read_bytes(), b"old contents")
                 self.assertEqual(sorted(p.name for p in self.remote_dir.iterdir()), ["file.apk"])
 
     def test_dot_dot_anywhere_is_refused(self):
-        result = self.push(str(self.local(b"x")), str(self.remote_dir / "a..b"), FAKE_NO_CONNECT="1")
+        rem = self.remote_path(self.remote_dir / "a..b")
+        result = self.push(str(self.local(b"x")), rem, FAKE_NO_CONNECT="1")
         self.assertEqual(result.returncode, 2, result.stderr)
         self.assertNotIn("connect() was called", result.stderr)
 
     def test_empty_file(self):
         target = self.remote_dir / "empty.txt"
         target.write_bytes(b"not empty yet")
-        result = self.push(str(self.local(b"")), str(target))
+        rem = self.remote_path(target)
+        result = self.push(str(self.local(b"")), rem)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(target.read_bytes(), b"")
         self.assertIn(hashlib.md5(b"").hexdigest(), result.stdout)
