@@ -23,16 +23,30 @@ SCREENSHOT_WANTED = {
     "accent_color", "advanced_effects", "always_show_names", "ambient_glow", "animations",
     "app_banners", "app_glow", "app_keys", "app_labels", "app_library", "app_library_selection",
     "background_color", "boot_to_live_tv", "cinematic_art", "cinematic_dots", "cinematic_home",
-    "cinematic_scrim", "cinematic_white_focus", "coocaa_sources", "dock_apps", "dock_even_padding",
+    "cinematic_scrim", "cinematic_white_focus", "coocaa_sources",
+    "corner_radius",  # visual theme key; pending screenshot in docs/switches.md
+    "dock_apps", "dock_even_padding",
     "dock_glass", "dock_opacity", "dock_row", "dock_title", "fade_rows", "festival_until", "fill_dock",
-    "focus_overshoot", "glow_style", "greeting", "greeting_name", "handle_view_inputs", "hidden_apps",
-    "icon_only_buttons", "icon_only_inputs", "input_action", "input_key_keycodes", "input_sources",
+    "focus_color",  # visual theme key; pending screenshot in docs/switches.md
+    "focus_overshoot",
+    "glow_color",  # visual theme key; pending screenshot in docs/switches.md
+    "glow_style", "greeting", "greeting_name", "handle_view_inputs", "hidden_apps",
+    "icon_only_buttons", "icon_only_inputs",
+    "icon_shape",  # visual theme key; pending screenshot in docs/switches.md
+    "input_action", "input_key_keycodes", "input_sources",
     "input_uri_scheme", "key_filter", "launch_actions", "launcher_settings_button", "library_apps",
     "library_button", "live_tv_action", "live_tv_input_id", "live_tv_package", "module_cards",
+    "pill_radius",  # visual theme key; pending screenshot in docs/switches.md
     "race_calendar", "reduced_motion", "reorder_button", "restore_key_services", "rows_below_dock",
     "settings_fallback_components", "settings_key_keycodes", "shamsi_date",
     "show_home_settings_shortcut", "show_inputs_pill", "show_network_pill", "show_stats",
-    "source_panel_action", "source_panel_extra", "source_panel_service", "stock_home_redirect",
+    "source_panel_action", "source_panel_extra", "source_panel_service",
+    "spacing",  # visual theme key; pending screenshot in docs/switches.md
+    "stock_home_redirect",
+    "surface_color",  # visual theme key; pending screenshot in docs/switches.md
+    "text_color",  # visual theme key; pending screenshot in docs/switches.md
+    "text_secondary_color",  # visual theme key; pending screenshot in docs/switches.md
+    "tile_backplate",  # visual theme key; pending screenshot in docs/switches.md
     "tile_menu", "top_menu", "vpn_app", "wallpaper", "wallpaper_captions", "wallpaper_dim",
     "wallpaper_moods", "wallpaper_order", "wallpaper_true_color", "wifi_label_width",
     "wifi_status_color",
