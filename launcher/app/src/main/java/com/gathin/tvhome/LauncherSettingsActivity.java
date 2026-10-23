@@ -1,28 +1,19 @@
 package com.gathin.tvhome;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -34,7 +25,7 @@ import java.util.Set;
  * Organized into 7 category pages, visual style matching the active theme,
  * fully navigable via TV D-pad with instant back navigation.
  */
-public final class LauncherSettingsActivity extends Activity {
+public final class LauncherSettingsActivity extends ThemeActivity {
 
     public static final String EXTRA_REORDER = "reorder";
 
@@ -73,6 +64,7 @@ public final class LauncherSettingsActivity extends Activity {
             "default", "aurora", "dussehra", "glass", "scenes", "six-columns"
     };
 
+    private ThemeBackdrop backdrop;
     private SharedPreferences choices;
     private Config config;
     private ScrollView categoriesScroll;
@@ -94,38 +86,7 @@ public final class LauncherSettingsActivity extends Activity {
         choices = getSharedPreferences(Config.SETTINGS_NAME, Context.MODE_PRIVATE);
         config = Config.load(this);
 
-        // Theme dynamic backdrop
-        View root = findViewById(R.id.settingsRoot);
-        if (root != null) {
-            root.setBackgroundColor(config.backgroundColor);
-        }
-
-        ImageView wallpaperView = findViewById(R.id.settingsWallpaper);
-        if (wallpaperView != null && config.wallpapers != null && !config.wallpapers.isEmpty()) {
-            File wp = config.wallpapers.get(0);
-            if (wp != null && wp.isFile()) {
-                BitmapFactory.Options opts = new BitmapFactory.Options();
-                opts.inPreferredConfig = config.wallpaperTrueColor ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
-                try {
-                    Bitmap bm = BitmapFactory.decodeFile(wp.getAbsolutePath(), opts);
-                    if (bm != null) {
-                        if (config.wallpaperDim > 0) {
-                            Bitmap mutable = bm.copy(opts.inPreferredConfig, true);
-                            if (mutable != null) {
-                                bm.recycle();
-                                bm = mutable;
-                                Canvas c = new Canvas(bm);
-                                int dimColor = (config.wallpaperDim * 255 / 100) << 24;
-                                c.drawColor(dimColor);
-                            }
-                        }
-                        wallpaperView.setImageBitmap(bm);
-                        wallpaperView.setVisibility(View.VISIBLE);
-                    }
-                } catch (Throwable ignored) {
-                }
-            }
-        }
+        backdrop = new ThemeBackdrop(this, findViewById(R.id.settingsRoot), config);
 
         categoriesScroll = findViewById(R.id.categoriesScroll);
         subpageScroll = findViewById(R.id.subpageScroll);
@@ -348,7 +309,7 @@ public final class LauncherSettingsActivity extends Activity {
                         changed();
                         populateCategory(CAT_MOTION);
                     } else {
-                        new AlertDialog.Builder(this)
+                        ThemeStyle.dialog(this)
                                 .setTitle(R.string.advanced_effects)
                                 .setMessage(R.string.advanced_effects_warning)
                                 .setPositiveButton(R.string.enable, (dialog, which) -> {
@@ -511,21 +472,14 @@ public final class LauncherSettingsActivity extends Activity {
         labels[THEME_PRESETS.length] = getString(R.string.theme_reset_choice);
         if (choices.getString("theme_preset", null) == null) checked = THEME_PRESETS.length;
 
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.theme_label)
                 .setSingleChoiceItems(labels, checked, (dialog, which) -> {
                     dialog.dismiss();
-                    if (which == THEME_PRESETS.length) {
-                        choices.edit().remove("theme_preset").apply();
-                        File extDest = new File(getExternalFilesDir(null), Config.FILE_NAME);
-                        if (extDest.exists()) extDest.delete();
-                        File dest = new File(getFilesDir(), Config.FILE_NAME);
-                        if (dest.exists()) dest.delete();
-                    } else {
-                        String chosen = THEME_PRESETS[which];
-                        choices.edit().putString("theme_preset", chosen).apply();
-                        applyThemePreset(chosen);
-                    }
+                    SharedPreferences.Editor editor = choices.edit();
+                    for (String key : Config.ON_TV_KEYS) editor.remove(key);
+                    if (which != THEME_PRESETS.length) editor.putString("theme_preset", THEME_PRESETS[which]);
+                    editor.commit();
                     changed();
                     populateCategory(CAT_APPEARANCE);
                     Toast.makeText(this, R.string.theme_label, Toast.LENGTH_SHORT).show();
@@ -534,32 +488,10 @@ public final class LauncherSettingsActivity extends Activity {
                 .show();
     }
 
-    private void applyThemePreset(String preset) {
-        try {
-            File extDest = new File(getExternalFilesDir(null), Config.FILE_NAME);
-            File intDest = new File(getFilesDir(), Config.FILE_NAME);
-            String minimalJson = "{\"columns\":5}";
-            if ("six-columns".equals(preset)) minimalJson = "{\"columns\":6}";
-            else if ("aurora".equals(preset)) minimalJson = "{\"background_color\":\"#0A1118\",\"sky_intensity\":60}";
-            else if ("glass".equals(preset)) minimalJson = "{\"dock_glass\":true,\"top_menu\":true}";
-            else if ("scenes".equals(preset)) minimalJson = "{\"sky_intensity\":60,\"cinematic_home\":true}";
-            else if ("dussehra".equals(preset)) minimalJson = "{\"sky_intensity\":40}";
-            byte[] bytes = minimalJson.getBytes(StandardCharsets.UTF_8);
-            if (extDest.getParentFile() != null) extDest.getParentFile().mkdirs();
-            try (FileOutputStream out = new FileOutputStream(extDest)) {
-                out.write(bytes);
-            }
-            try (FileOutputStream out = new FileOutputStream(intDest)) {
-                out.write(bytes);
-            }
-        } catch (IOException ignored) {
-        }
-    }
-
     private void showColumnsPicker() {
         String[] options = {"4", "5", "6", "7"};
         int checked = Math.max(0, Math.min(config.columns - 4, 3));
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.columns_label)
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -574,7 +506,7 @@ public final class LauncherSettingsActivity extends Activity {
     private void showRowsBelowPicker() {
         String[] options = {"0", "1", "2", "3"};
         int checked = Math.max(0, Math.min(config.rowsBelowDock, 3));
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.rows_below_dock_label)
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -593,7 +525,7 @@ public final class LauncherSettingsActivity extends Activity {
         for (int i = 0; i < values.length; i++) {
             if (config.dockOpacity == values[i]) checked = i;
         }
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.dock_opacity_label)
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -612,7 +544,7 @@ public final class LauncherSettingsActivity extends Activity {
         for (int i = 0; i < values.length; i++) {
             if (config.wallpaperDim == values[i]) checked = i;
         }
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.opt_wallpaper_dim)
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -631,7 +563,7 @@ public final class LauncherSettingsActivity extends Activity {
         for (int i = 0; i < values.length; i++) {
             if (config.wallpaperRotationMinutes == values[i]) checked = i;
         }
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.opt_wallpaper_rotation)
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -647,7 +579,7 @@ public final class LauncherSettingsActivity extends Activity {
         String[] values = {WallpaperRotation.ORDER_SHUFFLE, WallpaperRotation.ORDER_SEQUENTIAL};
         String[] options = {getString(R.string.wallpaper_order_shuffle), getString(R.string.wallpaper_order_sequential)};
         int checked = WallpaperRotation.ORDER_SEQUENTIAL.equals(config.wallpaperOrder) ? 1 : 0;
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.opt_wallpaper_order)
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -666,7 +598,7 @@ public final class LauncherSettingsActivity extends Activity {
         for (int i = 0; i < values.length; i++) {
             if (config.skyIntensity == values[i]) checked = i;
         }
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.opt_sky_intensity)
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -682,7 +614,7 @@ public final class LauncherSettingsActivity extends Activity {
         String[] values = {"radial", "horizon"};
         String[] options = {getString(R.string.glow_radial), getString(R.string.glow_horizon)};
         int checked = "horizon".equals(config.glowStyle) ? 1 : 0;
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.opt_glow_style)
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -701,7 +633,7 @@ public final class LauncherSettingsActivity extends Activity {
         for (int i = 0; i < values.length; i++) {
             if (config.homeIdleClockMinutes == values[i]) checked = i;
         }
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.opt_home_idle_clock)
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -720,7 +652,7 @@ public final class LauncherSettingsActivity extends Activity {
         for (int i = 0; i < values.length; i++) {
             if (config.wifiLabelWidth == values[i]) checked = i;
         }
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.opt_wifi_label_width)
                 .setSingleChoiceItems(options, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -733,7 +665,8 @@ public final class LauncherSettingsActivity extends Activity {
     }
 
     private void showWallpaperPicker() {
-        File dir = Config.dir(this);
+        String preset = choices.getString("theme_preset", null);
+        File dir = preset == null ? Config.dir(this) : ThemePresets.directory(this, preset);
         List<File> images = new ArrayList<>(WallpaperRotation.images(
                 dir == null ? null : new File(dir, "wallpapers")));
         File single = dir == null ? null : new File(dir, Config.WALLPAPER_NAME);
@@ -743,7 +676,7 @@ public final class LauncherSettingsActivity extends Activity {
         labels[images.size()] = getString(R.string.wallpaper_none);
         String current = choices.getString(Config.WALLPAPER_CHOICE_KEY, null);
         int checked = "none".equals(current) ? images.size() : indexOf(images, current);
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.wallpaper_label)
                 .setSingleChoiceItems(labels, checked, (dialog, which) -> {
                     dialog.dismiss();
@@ -771,7 +704,7 @@ public final class LauncherSettingsActivity extends Activity {
         List<Cards.Card> discovered = CardFeature.run(() -> Cards.discover(this, Collections.emptySet(),
                 () -> Cards.load(Cards.storeFile(this)), leanback), Collections.emptyList());
         if (discovered == null || discovered.isEmpty() || !CardFeature.working()) {
-            new AlertDialog.Builder(this)
+            ThemeStyle.dialog(this)
                     .setTitle(R.string.manage_addons)
                     .setMessage(R.string.no_cards_installed)
                     .setPositiveButton(android.R.string.ok, null)
@@ -789,7 +722,7 @@ public final class LauncherSettingsActivity extends Activity {
             checked[i] = card.state == Cards.State.SHOWN;
         }
 
-        new AlertDialog.Builder(this)
+        ThemeStyle.dialog(this)
                 .setTitle(R.string.manage_addons)
                 .setMultiChoiceItems(items, checked, (dialog, which, isChecked) -> {
                     Cards.Card card = listed.get(which);
@@ -813,10 +746,40 @@ public final class LauncherSettingsActivity extends Activity {
         Toast.makeText(this, R.string.follow_theme, Toast.LENGTH_SHORT).show();
     }
 
+    @Override protected void onStart() {
+        super.onStart();
+        if (backdrop != null) backdrop.start();
+    }
+
+    @Override protected void onStop() {
+        if (backdrop != null) backdrop.stop();
+        super.onStop();
+    }
+
+    @Override protected void onDestroy() {
+        if (backdrop != null) backdrop.close();
+        super.onDestroy();
+    }
+
+    private void refreshTheme() {
+        config = Config.load(this);
+        if (backdrop != null) backdrop.close();
+        backdrop = new ThemeBackdrop(this, findViewById(R.id.settingsRoot), config);
+        backdrop.start();
+        config.style.watch(getWindow().getDecorView());
+    }
+
+    @Override protected void onThemeChanged() {
+        refreshTheme();
+        if (currentCategory >= 0) populateCategory(currentCategory);
+        else buildCategoriesList();
+    }
+
     private void changed() {
         setResult(RESULT_OK);
         choices.edit().putLong(Config.SETTINGS_REVISION_KEY,
                 choices.getLong(Config.SETTINGS_REVISION_KEY, 0) + 1).apply();
+        refreshTheme();
     }
 
     private String getAppearanceSummary() {

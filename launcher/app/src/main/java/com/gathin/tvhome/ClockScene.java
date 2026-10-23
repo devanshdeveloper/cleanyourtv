@@ -1,10 +1,10 @@
 package com.gathin.tvhome;
 
-import android.animation.ArgbEvaluator;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.FrameLayout;
 
 import java.util.Random;
 
@@ -16,18 +16,14 @@ import java.util.Random;
 final class ClockScene {
 
     private static final long MOVE_MS = 60_000L;
-    /** The glow's colour change: 16 steps over 8 s. Animated per frame it redrew the full-screen gradient ~480 times. */
-    private static final int GLOW_STEPS = 16;
-    private static final long GLOW_STEP_MS = 500L;
-    /** Deep, low-brightness glow colours; the glow is drawn at partial alpha on black. */
-    private static final int[] PALETTE = {0xFF2B5CFF, 0xFF00A39A, 0xFF8A3FFC, 0xFFE0661B, 0xFFD6336C};
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Random random = new Random();
     private final View content;
     private final GradientDrawable glow;
-    private int colorIndex;
     private int glowColor;
+    private final Config config;
+    private final ThemeBackdrop backdrop;
 
     private final Runnable tick = new Runnable() {
         @Override
@@ -40,36 +36,41 @@ final class ClockScene {
 
     /** root is the inflated dream_clock layout. */
     ClockScene(View root) {
+        config = Config.load(root.getContext());
         content = root.findViewById(R.id.dreamContent);
+        FrameLayout sceneRoot = (FrameLayout) content.getParent();
+        backdrop = new ThemeBackdrop(root.getContext(), sceneRoot, config);
+        config.style.watch(sceneRoot);
         View ambient = root.findViewById(R.id.dreamAmbient);
         glow = new GradientDrawable();
         glow.setGradientType(GradientDrawable.RADIAL_GRADIENT);
         ambient.setBackground(glow);
         ambient.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) ->
                 glow.setGradientRadius((r - l) * 0.55f));
-        colorIndex = random.nextInt(PALETTE.length);
-        setGlow(PALETTE[colorIndex]);
+        setGlow(config.style.palette.glow);
     }
 
     void start() {
+        backdrop.start();
         content.setAlpha(0f);
         content.post(() -> {
             placeClock();
-            content.animate().alpha(1f).setDuration(1200).start();
+            content.animate().alpha(1f).setDuration(duration(1200)).start();
         });
         handler.removeCallbacks(tick);
         handler.postDelayed(tick, MOVE_MS);
     }
 
     void stop() {
+        backdrop.stop();
         handler.removeCallbacksAndMessages(null);   // the tick and any glow steps still queued
         content.animate().cancel();
     }
 
     private void moveClock() {
-        content.animate().alpha(0f).setDuration(900).withLayer().withEndAction(() -> {
+        content.animate().alpha(0f).setDuration(duration(900)).withLayer().withEndAction(() -> {
             placeClock();
-            content.animate().alpha(1f).setDuration(1200).withLayer().start();
+            content.animate().alpha(1f).setDuration(duration(1200)).withLayer().start();
         }).start();
     }
 
@@ -89,19 +90,17 @@ final class ClockScene {
     }
 
     private void shiftGlow() {
-        int from = glowColor;
-        colorIndex = (colorIndex + 1) % PALETTE.length;
-        int to = PALETTE[colorIndex];
-        ArgbEvaluator mix = new ArgbEvaluator();
-        for (int i = 1; i <= GLOW_STEPS; i++) {
-            float f = (float) i / GLOW_STEPS;
-            handler.postDelayed(() -> setGlow((int) mix.evaluate(f, from, to)), i * GLOW_STEP_MS);
-        }
+        setGlow(config.style.palette.glow);
     }
+
+    private long duration(int normal) {
+        return !config.animations ? 0 : config.reducedMotion ? Motion.REDUCED_MS : normal;
+    }
+
+    void close() { stop(); backdrop.close(); }
 
     private void setGlow(int color) {
         glowColor = color;
-        int c = color & 0x00FFFFFF;
-        glow.setColors(new int[]{0x40000000 | c, 0x14000000 | c, 0x00000000 | c});
+        glow.setColors(new int[]{ThemePalette.alpha(color, 64), ThemePalette.alpha(color, 20), ThemePalette.alpha(color, 0)});
     }
 }

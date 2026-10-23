@@ -22,6 +22,7 @@ public class GlassView extends View {
     private final RectF rect = new RectF();
     private final float density;
     private float radius;
+    private ThemeStyle theme;
     /** Glow colour as 0xRRGGBB: white normally, a festival's accent (diya gold) while a festive skin is on. */
     private int glowRgb = 0xFFFFFF;
     /** Glow strength: the white glow stays faint, a coloured one needs more alpha to read as warm light. */
@@ -41,8 +42,23 @@ public class GlassView extends View {
         setLayerType(LAYER_TYPE_HARDWARE, null);
     }
 
+    void setTheme(ThemeStyle style) {
+        theme = style;
+        radius = style.dp(style.palette.radius);
+        setAccent(style.palette.focus);
+        onSizeChanged(getWidth(), getHeight(), getWidth(), getHeight());
+    }
+
     /** Tints the rim and the outer glow; 0 restores the plain white glass. */
     void setAccent(int argb) {
+        if (argb == 0 && theme != null) argb = theme.palette.focus;
+        if (theme != null) {
+            glowRgb = ThemePalette.alpha(argb, 0);
+            glowAlpha = 112;
+            rim.setColor(ThemePalette.alpha(argb, 230));
+            invalidate();
+            return;
+        }
         if (argb == 0) {
             glowRgb = 0xFFFFFF;
             glowAlpha = 0x30;
@@ -66,8 +82,9 @@ public class GlassView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        fill.setShader(new LinearGradient(0, 0, 0, h, 0x3DFFFFFF, 0x12FFFFFF, Shader.TileMode.CLAMP));
-        specular.setShader(new LinearGradient(0, 0, 0, h * 0.45f, 0x66FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
+        int color = theme == null ? ThemePalette.WHITE : theme.palette.focus;
+        fill.setShader(new LinearGradient(0, 0, 0, h, ThemePalette.alpha(color, 61), ThemePalette.alpha(color, 18), Shader.TileMode.CLAMP));
+        specular.setShader(new LinearGradient(0, 0, 0, h * 0.45f, ThemePalette.alpha(color, 102), ThemePalette.alpha(color, 0), Shader.TileMode.CLAMP));
     }
 
     @Override

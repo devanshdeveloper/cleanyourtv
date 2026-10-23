@@ -5,6 +5,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.os.Handler;
+import android.os.Looper;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +37,21 @@ public class ThemeProvider extends ContentProvider {
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
         File f = file(uri);
         if (mode.contains("w")) {
+            if ("theme_revision".equals(f.getName())) {
+                try {
+                    return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_WRITE_ONLY
+                            | ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_TRUNCATE,
+                            new Handler(Looper.getMainLooper()), error -> {
+                                if (error == null && getContext() != null) {
+                                    ThemeSession.invalidate();
+                                    getContext().getContentResolver().notifyChange(
+                                            Uri.parse("content://" + getContext().getPackageName() + ".theme"), null);
+                                }
+                            });
+                } catch (java.io.IOException failure) {
+                    throw new FileNotFoundException(failure.getMessage());
+                }
+            }
             return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_WRITE_ONLY
                     | ParcelFileDescriptor.MODE_CREATE | ParcelFileDescriptor.MODE_TRUNCATE);
         }

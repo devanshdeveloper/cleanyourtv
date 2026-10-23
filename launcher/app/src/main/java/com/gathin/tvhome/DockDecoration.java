@@ -19,6 +19,7 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
     private final Paint band = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint edge = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rect = new RectF();
+    private ThemeStyle style;
 
     /** Extra band below the tiles for their names (always_show_names), in px. */
     private final float namesRoom;
@@ -37,21 +38,28 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
      * @param evenPadding the band's padding is the gap between the tiles on all four sides (dock_even_padding).
      */
     DockDecoration(int dockSize, float density, boolean translucent, boolean names, int opacity, boolean lightGlass,
-                   boolean evenPadding) {
+                   boolean evenPadding, ThemeStyle style) {
         this.dockSize = dockSize;
         this.density = density;
         this.namesRoom = names ? 22 * density : 0;
         this.lightGlass = lightGlass;
         this.evenPadding = evenPadding;
-        band.setColor(translucent ? 0x8C121014 : (Math.round(opacity * 2.55f) << 24) | 0x141416);
+        this.style = style;
+        band.setColor(ThemePalette.alpha(style.palette.surface, Math.round(opacity * 2.55f)));
         edge.setStyle(Paint.Style.STROKE);
         edge.setStrokeWidth(density);
-        edge.setColor(lightGlass ? 0x38FFFFFF : translucent ? 0x26FFFFFF : 0x1FFFFFFF);
+        edge.setColor(ThemePalette.alpha(style.palette.text, 40));
     }
 
     /** Concentric corners: the band's radius is the tiles' radius plus the band's padding around them. */
     static float radiusPx(float tileRadiusPx, float paddingPx) {
         return tileRadiusPx + paddingPx;
+    }
+
+    void setTheme(ThemeStyle style, int opacity) {
+        this.style = style;
+        band.setColor(ThemePalette.alpha(style.palette.surface, Math.round(opacity * 2.55f)));
+        edge.setColor(ThemePalette.alpha(style.palette.text, 40));
     }
 
     /**
@@ -105,7 +113,7 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         // outwards and still keeps about the band's top margin from its rounded end.
         float sidePad = 22 * density;
         float side = Math.max(0f, Math.min(sidePad, Math.min(rect.left, parent.getWidth() - rect.right) - density));
-        float radius = AppAdapter.cornerRadius(cardWidth, density);
+        float radius = style.dp(style.palette.radius);
         if (evenPadding) {
             // The same padding on all four sides, so the band's corners are concentric with the tiles' everywhere.
             int inner = parent.getWidth() - parent.getPaddingLeft() - parent.getPaddingRight();
@@ -116,12 +124,13 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         } else {
             // dock_even_padding off: the band as before, with its fixed 26 dp corners.
             rect.inset(-side, -pad);
-            radius = 26 * density;
+            radius = style.dp(style.palette.radius + style.palette.spacing);
         }
         rect.bottom += namesRoom;
         if (lightGlass && (rect.top != shaderTop || rect.bottom != shaderBottom)) {
             // The pills' glass (pill_bg: white, 18% fading to 8%), a little fainter over this much larger area.
-            band.setShader(new LinearGradient(0, rect.top, 0, rect.bottom, 0x24FFFFFF, 0x0DFFFFFF,
+            int color = style.palette.surface;
+            band.setShader(new LinearGradient(0, rect.top, 0, rect.bottom, ThemePalette.alpha(color, 180), ThemePalette.alpha(color, 100),
                     Shader.TileMode.CLAMP));
             shaderTop = rect.top;
             shaderBottom = rect.bottom;

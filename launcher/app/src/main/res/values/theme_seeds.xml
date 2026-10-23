@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Inflation fallbacks only. ThemeStyle replaces launcher UI colours and geometry at runtime.
+     Vector colours describe alpha masks; third-party artwork is never recoloured. -->
+<resources>
+    <color name="theme_seed_ffffffff">#FFFFFFFF</color>
+    <color name="theme_seed_ff111111">#FF111111</color>
+    <color name="theme_seed_ff34c759">#FF34C759</color>
+    <color name="theme_seed_8cffffff">#8CFFFFFF</color>
+    <color name="theme_seed_ff000000">#FF000000</color>
+    <color name="theme_seed_e6ffffff">#E6FFFFFF</color>
+    <color name="theme_seed_99ffffff">#99FFFFFF</color>
+    <color name="theme_seed_f2ffffff">#F2FFFFFF</color>
+    <color name="theme_seed_e6111111">#E6111111</color>
+    <color name="theme_seed_73ffffff">#73FFFFFF</color>
+    <color name="theme_seed_246e58">#246E58</color>
+    <color name="theme_seed_ff1c1c1e">#FF1C1C1E</color>
+    <color name="theme_seed_f22a2a2e">#F22A2A2E</color>
+    <color name="theme_seed_f5161618">#F5161618</color>
+    <color name="theme_seed_33ffffff">#33FFFFFF</color>
+    <color name="theme_seed_b3ffffff">#B3FFFFFF</color>
+    <color name="theme_seed_a6ffffff">#A6FFFFFF</color>
+    <color name="theme_seed_d9ffffff">#D9FFFFFF</color>
+    <color name="theme_seed_ffe20074">#FFE20074</color>
+    <color name="theme_seed_ff8c0049">#FF8C0049</color>
+    <color name="theme_seed_f5ffffff">#F5FFFFFF</color>
+    <color name="theme_seed_596ec1ff">#596EC1FF</color>
+    <color name="theme_seed_ff6ec1ff">#FF6EC1FF</color>
+    <color name="theme_seed_2effffff">#2EFFFFFF</color>
+    <color name="theme_seed_14ffffff">#14FFFFFF</color>
+    <color name="theme_seed_38ffffff">#38FFFFFF</color>
+    <color name="theme_seed_88ffffff">#88FFFFFF</color>
+    <color name="theme_seed_1affffff">#1AFFFFFF</color>
+    <color name="theme_seed_26ffffff">#26FFFFFF</color>
+    <color name="theme_seed_ffff3b2f">#FFFF3B2F</color>
+    <color name="theme_seed_99111111">#99111111</color>
+    <color name="theme_seed_80ffffff">#80FFFFFF</color>
+    <color name="theme_seed_00000000">#00000000</color>
+    <dimen name="theme_seed_radius_16">16dp</dimen>
+    <dimen name="theme_seed_radius_20">20dp</dimen>
+    <dimen name="theme_seed_radius_21">21dp</dimen>
+    <dimen name="theme_seed_radius_14">14dp</dimen>
+    <dimen name="theme_seed_radius_1_5">1.5dp</dimen>
+    <dimen name="theme_seed_radius_13">13dp</dimen>
+</resources>

@@ -17,7 +17,7 @@ import android.widget.Toast;
  * task of its own, so the app behind keeps running and Back returns to it. Pressing Settings again
  * closes the panel.
  */
-public final class QuickSettingsActivity extends Activity {
+public final class QuickSettingsActivity extends ThemeActivity {
 
     @Override
     protected void onCreate(Bundle state) {
@@ -34,6 +34,8 @@ public final class QuickSettingsActivity extends Activity {
         addRow(rows, R.drawable.ic_home_settings, R.string.launcher_settings, 0,
                 new Intent(this, MainActivity.class).setAction(MainActivity.ACTION_LAUNCHER_SETTINGS));
         rows.getChildAt(0).requestFocus();
+        ThemeStyle.get(this).panel(findViewById(R.id.panel));
+        findViewById(R.id.scrim).setBackgroundColor(ThemePalette.alpha(ThemeStyle.get(this).palette.background, 100));
     }
 
     /** Settings pressed again while the panel is up. */

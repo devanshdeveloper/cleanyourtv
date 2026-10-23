@@ -45,6 +45,7 @@ final class WallpaperPlayer {
     private final int height;
     /** wallpaper_dim as an ARGB black, painted into each picture once instead of a full-screen shade view. */
     private final int dimColor;
+    private final int backgroundColor;
     /** The picture on screen, released once the next one has been drawn. */
     private Bitmap current;
     private boolean active;
@@ -63,6 +64,7 @@ final class WallpaperPlayer {
 
     WallpaperPlayer(Context context, FrameLayout root, Config config) {
         this.root = root;
+        backgroundColor = config.backgroundColor;
         files = new ArrayList<>(config.wallpapers);
         interval = config.wallpaperRotationMinutes * 60_000L;
         bitmapConfig = config.wallpaperTrueColor ? Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
@@ -128,11 +130,22 @@ final class WallpaperPlayer {
 
     void start() {
         active = true;
+        if (current == null && !files.isEmpty()) showFirst();
         update();
     }
 
     void stop() {
         active = false;
+    }
+
+    /** Fully hidden, rather than paused behind a translucent launcher panel. */
+    void release() {
+        stop();
+        image.setImageDrawable(null);
+        root.setBackgroundColor(backgroundColor);
+        SharedWallpaper.release(current);
+        current = null;
+        displayed = "";
     }
 
     /** The pictures the rotation picks from now: wallpaper_moods' group for the time of day, or the whole collection. */
@@ -147,9 +160,11 @@ final class WallpaperPlayer {
     }
 
     void close() {
-        active = false;
+        release();
         closed = true;
         decoder.shutdownNow();
+        root.removeView(image);
+        if (caption != null) root.removeView(caption);
     }
 
     void update() {
@@ -170,7 +185,7 @@ final class WallpaperPlayer {
             root.post(() -> {
                 loading = false;
                 if (closed || !active) {
-                    if (bitmap != null) bitmap.recycle();
+                    SharedWallpaper.release(bitmap);
                     return;
                 }
                 if (bitmap == null) {
@@ -198,8 +213,8 @@ final class WallpaperPlayer {
         float dp = context.getResources().getDisplayMetrics().density;
         TextView text = new TextView(context);
         text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
-        text.setTextColor(0xD9FFFFFF);
-        text.setShadowLayer(6 * dp, 0, dp, 0xCC000000);
+        text.setTextColor(ThemeStyle.get(context).palette.text);
+        text.setShadowLayer(6 * dp, 0, dp, ThemePalette.alpha(ThemeStyle.get(context).palette.background, 204));
         text.setSingleLine(true);
         text.setEllipsize(TextUtils.TruncateAt.END);
         text.setMaxWidth(Math.round(520 * dp));
@@ -251,10 +266,16 @@ final class WallpaperPlayer {
         Bitmap old = current;
         current = bitmap;
         image.setImageBitmap(bitmap);
-        if (old != null && old != bitmap) image.postDelayed(old::recycle, 500);
+        SharedWallpaper.release(old);
     }
 
     private Bitmap decode(File file) {
+        String key = file.getAbsolutePath() + ":" + file.length() + ":" + file.lastModified()
+                + ":" + width + "x" + height + ":" + bitmapConfig + ":" + dimColor;
+        return SharedWallpaper.acquire(key, () -> decodeBitmap(file));
+    }
+
+    private Bitmap decodeBitmap(File file) {
         try {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inJustDecodeBounds = true;

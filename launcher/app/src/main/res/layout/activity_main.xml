@@ -3,7 +3,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FF000000">
+    android:background="@color/theme_seed_ff000000">
 
     <!-- Time-of-day backdrop, drawn once a minute (config.xml sky_intensity; 0 keeps it hidden). -->
     <com.gathin.tvhome.SkyView
@@ -63,7 +63,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:textColor="#B3FFFFFF"
+                android:textColor="@color/theme_seed_b3ffffff"
                 android:textSize="12sp"
                 android:fontFamily="@string/font_medium"
                 android:letterSpacing="0.22"
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:singleLine="true"
-            android:textColor="#FFFFFFFF"
+            android:textColor="@color/theme_seed_ffffffff"
             android:textSize="34sp"
             android:fontFamily="@string/font_light"
             android:letterSpacing="-0.01"
@@ -88,7 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:singleLine="true"
-            android:textColor="#99FFFFFF"
+            android:textColor="@color/theme_seed_99ffffff"
             android:textSize="12sp"
             android:fontFamily="@string/font_medium"
             android:letterSpacing="0.12" />
@@ -116,7 +116,7 @@
             android:id="@+id/heroName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#FFFFFFFF"
+            android:textColor="@color/theme_seed_ffffffff"
             android:textSize="48sp"
             android:fontFamily="@string/font_light"
             android:letterSpacing="-0.02"
@@ -131,7 +131,7 @@
             android:layout_marginStart="4dp"
             android:layout_marginTop="12dp"
             android:singleLine="true"
-            android:textColor="#B3FFFFFF"
+            android:textColor="@color/theme_seed_b3ffffff"
             android:textSize="15sp"
             android:fontFamily="@string/font_light"
             android:visibility="gone" />
@@ -183,7 +183,7 @@
                     android:singleLine="true"
                     android:ellipsize="end"
                     android:layout_marginStart="4dp"
-                    android:textColor="#8CFFFFFF"
+                    android:textColor="@color/theme_seed_8cffffff"
                     android:textSize="12sp"
                     android:fontFamily="@string/font_medium"
                     android:letterSpacing="0.22"
@@ -201,7 +201,7 @@
                         android:layout_height="wrap_content"
                         android:format12Hour="h:mm"
                         android:format24Hour="HH:mm"
-                        android:textColor="#FFFFFFFF"
+                        android:textColor="@color/theme_seed_ffffffff"
                         android:textSize="52sp"
                         android:fontFamily="@string/font_light"
                         android:letterSpacing="-0.04"
@@ -216,7 +216,7 @@
                         android:layout_marginBottom="8dp"
                         android:format12Hour="a"
                         android:format24Hour=""
-                        android:textColor="#B3FFFFFF"
+                        android:textColor="@color/theme_seed_b3ffffff"
                         android:textSize="15sp"
                         android:fontFamily="@string/font_medium"
                         android:letterSpacing="0.08"
@@ -229,7 +229,7 @@
                         android:layout_marginStart="16dp"
                         android:layout_marginEnd="16dp"
                         android:layout_marginBottom="8dp"
-                        android:background="#33FFFFFF" />
+                        android:background="@color/theme_seed_33ffffff" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -247,7 +247,7 @@
                             android:layout_height="wrap_content"
                             android:singleLine="true"
                             android:ellipsize="end"
-                            android:textColor="#E6FFFFFF"
+                            android:textColor="@color/theme_seed_e6ffffff"
                             android:textSize="17sp"
                             android:fontFamily="@string/font_regular"
                             android:letterSpacing="0.02"
@@ -265,7 +265,7 @@
                             android:ellipsize="end"
                             android:format12Hour="@string/date_format_home"
                             android:format24Hour="@string/date_format_home"
-                            android:textColor="#A6FFFFFF"
+                            android:textColor="@color/theme_seed_a6ffffff"
                             android:textSize="14sp"
                             android:fontFamily="@string/font_regular"
                             android:letterSpacing="0.14"
@@ -287,7 +287,7 @@
                 android:layout_marginTop="2dp"
                 android:singleLine="true"
                 android:ellipsize="end"
-                android:textColor="#D9FFFFFF"
+                android:textColor="@color/theme_seed_d9ffffff"
                 android:textSize="14sp"
                 android:fontFamily="@string/font_medium"
                 android:letterSpacing="0.04"

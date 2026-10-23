@@ -11,7 +11,7 @@ import android.view.View;
  * screens (CVTE's live TV) do not keep the screen on, so the system screensaver would cut into programmes;
  * this one only ever starts from Home. Any key returns to Home.
  */
-public class ClockActivity extends Activity {
+public class ClockActivity extends ThemeActivity {
 
     private ClockScene scene;
 
@@ -35,6 +35,17 @@ public class ClockActivity extends Activity {
         scene.stop();
         super.onPause();
         finish();   // never left behind in the back stack
+    }
+
+    @Override protected void onDestroy() {
+        if (scene != null) scene.close();
+        super.onDestroy();
+    }
+
+    @Override protected void onThemeChanged() {
+        scene.close();
+        scene = new ClockScene(getWindow().getDecorView());
+        scene.start();
     }
 
     @Override

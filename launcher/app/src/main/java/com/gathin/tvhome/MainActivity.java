@@ -94,7 +94,7 @@ import java.util.Set;
 /**
  * tvOS style home: black, a pinned dock row, an app grid, and one glass highlight that springs between tiles.
  */
-public class MainActivity extends Activity implements AppAdapter.TileListener {
+public class MainActivity extends ThemeActivity implements AppAdapter.TileListener {
 
     private static final int LAUNCHER_SETTINGS_REQUEST = 42;
     /** Sent by QuickSettingsActivity: open Launcher settings from here so Home rebuilds when they close. */
@@ -130,6 +130,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private String sourcePanelExtra;
     private boolean coocaaSources;
 
+    private ThemeStyle style;
     private AppAdapter adapter;
     private RecyclerView grid;
     private FrameLayout root;
@@ -355,6 +356,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         density = getResources().getDisplayMetrics().density;
         // config.xml, overlaid by config.json from a pushed theme (see Config and tools/theme.sh).
         Config cfg = Config.load(this);
+        style = cfg.style;
+        if (lastFocusedKey == null) lastFocusedKey = getPreferences(MODE_PRIVATE).getString("theme_focus", null);
         appLibrarySelection = cfg.appLibrarySelection;
         // restore_key_services: after a force stop, put back the remote's accessibility helpers that Android took
         // off the list (needs WRITE_SECURE_SETTINGS, granted by build-and-install with RESTORE_KEY_SERVICES=1).
@@ -394,6 +397,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         wallpaperPlayer = new WallpaperPlayer(this, root, cfg);
         sky = findViewById(R.id.sky);
         sky.setIntensity(cfg.skyIntensity);
+        if (!cfg.wallpapers.isEmpty() || cfg.skyIntensity > 0 || cfg.cinematicHome) {
+            View contrastScrim = cfg.style.scrim(this);
+            root.addView(contrastScrim, root.indexOfChild(findViewById(R.id.ambient)) + 1,
+                    new FrameLayout.LayoutParams(-1, -1));
+        }
         glass = findViewById(R.id.glass);
         if (festive) glass.setAccent(festival.accentColor());
         ambient = findViewById(R.id.ambient);
@@ -511,7 +519,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             public void onChildViewDetachedFromWindow(@NonNull View v) {
             }
         });
-        if (dockRow) grid.addItemDecoration(new DockDecoration(COLUMNS, density, cinematic, cfg.alwaysShowNames, cfg.dockOpacity, cfg.dockGlass, cfg.dockEvenPadding));
+        if (dockRow) {
+            DockDecoration dock = new DockDecoration(COLUMNS, density, cinematic, cfg.alwaysShowNames,
+                    cfg.dockOpacity, cfg.dockGlass, cfg.dockEvenPadding, cfg.style);
+            dock.setTheme(cfg.style, cfg.dockOpacity);
+            grid.addItemDecoration(dock);
+        }
         if (cfg.fadeRows) TopFade.attach(grid, 48 * density);
         // Reduced motion: the tiles are simply there, with no entrance (reloadApps skips it there too).
         if (animations && !reducedMotion) {
@@ -623,7 +636,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         wifiIconOnly = iconOnlyButtons && cfg.wifiLabelWidth <= 0;
         if (cfg.wifiStatusColor) {
             wifiPlainTint = btnWifi.getCompoundDrawableTintList();
-            wifiOnlineTint = getColorStateList(R.color.pill_icon_online);
+            wifiOnlineTint = new ColorStateList(new int[][]{{android.R.attr.state_focused}, {}},
+                    new int[]{ThemePalette.ink(style.palette.focus), style.palette.accent});
         }
         if (cfg.topMenu) {
             // One gear: Inputs and Wi-Fi move into its dropdown. The Wi-Fi pill stays hidden but keeps its
@@ -1041,6 +1055,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onStop() {
         super.onStop();
+        wallpaperPlayer.release();
         started = false;
         unregisterReceiver(timeReceiver);
         handler.removeCallbacks(clockCheck);
@@ -1116,7 +1131,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     // ---- reorder ---------------------------------------------------------------------------------
 
     /** Blue the glass turns while reorder mode is on. */
-    private static final int REORDER_ACCENT = 0xFF6EC1FF;
 
     /**
      * Reorder mode (top-bar button). While it is on, every key comes here first:
@@ -1214,7 +1228,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (adapter.hasEmptySlots()) reloadTiles();   // every position must hold a tile that can move
         reordering = true;
         orderAtStart = adapter.movableKeys();
-        glass.setAccent(REORDER_ACCENT);
+        glass.setAccent(style.palette.accent);
         btnReorder.setActivated(true);
         return true;
     }
@@ -1479,6 +1493,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     public void onTileFocused(int position, View card) {
         lastFocused = position;
         lastFocusedKey = adapter.keyAt(position);
+        getPreferences(MODE_PRIVATE).edit().putString("theme_focus", lastFocusedKey).apply();
         // Focus restored before the first layout (cold start): the tile has no size yet, and the glass
         // would be sized to 2*pad. Run again once the tile is laid out.
         if (card.getWidth() == 0) {
@@ -1504,7 +1519,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             lp.height = (int) h;
             glass.setLayoutParams(lp);
             // GlassView draws its slab inset by pad, i.e. exactly over the zoomed tile: same corners as the tile.
-            glass.setRadius(AppAdapter.cornerRadius(card.getWidth(), density) * scale);
+            glass.setRadius(ThemeStyle.get(this).dp(ThemeStyle.get(this).palette.radius)
+                    * card.getWidth() / (AppAdapter.DESIGN_W_DP * density) * scale);
         }
         glassCardW = card.getWidth();
         glassTargetX = x;
@@ -1512,8 +1528,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // Cinematic shelf: the highlight glows in the dock app's colour, plain white in the grid (and on the dock with
         // cinematic_white_focus). app_glow: every tile.
         boolean coloured = (appGlow || cinematic && !cinematicWhiteFocus && position < COLUMNS) && !festive;
-        int accent = coloured ? adapter.ambientColorAt(position) : 0;
-        if ((cinematic || appGlow) && !festive && accent != glassAccent) {
+        int accent = style.customGlow ? style.palette.glow : coloured ? adapter.ambientColorAt(position) : 0;
+        if ((style.customGlow || cinematic || appGlow) && !festive && accent != glassAccent) {
             glassAccent = accent;
             glass.setAccent(accent);
         }
@@ -1675,10 +1691,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         boolean rtl = getResources().getBoolean(R.bool.rtl_menu_bar);
         Paint paint = new Paint();
         paint.setShader(new LinearGradient(rtl ? w : 0, 0, rtl ? 0 : w, 0,
-                new int[]{0xD1060406, 0x59060406, 0x00060406}, new float[]{0f, 0.42f, 0.7f}, Shader.TileMode.CLAMP));
+                new int[]{ThemePalette.alpha(style.palette.background, 209), ThemePalette.alpha(style.palette.background, 89), ThemePalette.alpha(style.palette.background, 0)}, new float[]{0f, 0.42f, 0.7f}, Shader.TileMode.CLAMP));
         canvas.drawRect(0, 0, w, h, paint);
         paint.setShader(new LinearGradient(0, 0, 0, h,
-                new int[]{0x00060406, 0x00060406, 0xDB060406, 0xFF060406}, new float[]{0f, 0.28f, 0.58f, 0.76f},
+                new int[]{ThemePalette.alpha(style.palette.background, 0), ThemePalette.alpha(style.palette.background, 0), ThemePalette.alpha(style.palette.background, 219), style.palette.background}, new float[]{0f, 0.28f, 0.58f, 0.76f},
                 Shader.TileMode.CLAMP));
         canvas.drawRect(0, 0, w, h, paint);
         BitmapDrawable scrim = new BitmapDrawable(getResources(), bmp);
@@ -1729,7 +1745,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         String text = getString(R.string.last_opened, rel);
         SpannableString line = new SpannableString(text);
         int at = text.indexOf(rel);
-        if (at >= 0) line.setSpan(new ForegroundColorSpan(0xFFFFFFFF), at, at + rel.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if (at >= 0) line.setSpan(new ForegroundColorSpan(style.palette.text), at, at + rel.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         heroMeta.setText(line);
         heroMeta.setVisibility(View.VISIBLE);
     }
@@ -1744,7 +1760,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             for (int i = 0; i < count; i++) {
                 View dot = new View(this);
                 GradientDrawable bg = new GradientDrawable();
-                bg.setCornerRadius(3 * density);
+                bg.setCornerRadius(style.dp(style.palette.radius));
                 dot.setBackground(bg);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams((int) (6 * density), (int) (6 * density));
                 if (i > 0) lp.leftMargin = (int) (6 * density);
@@ -1754,7 +1770,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         for (int i = 0; i < count; i++) {
             View dot = heroDots.getChildAt(rtlAppGrid ? count - 1 - i : i);
             boolean on = i == position;
-            ((GradientDrawable) dot.getBackground()).setColor(on ? 0xFFFFFFFF : 0x4DFFFFFF);
+            ((GradientDrawable) dot.getBackground()).setColor(on ? style.palette.text : ThemePalette.alpha(style.palette.text, 77));
             ViewGroup.LayoutParams lp = dot.getLayoutParams();
             int w = (int) ((on ? 20 : 6) * density);
             if (lp.width != w) {
@@ -1772,6 +1788,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      * so changing apps neither repaints it on the CPU (about 11 ms) nor uploads it again.
      */
     private void setAmbient(int color) {
+        if (style.customGlow) color = style.palette.glow;
         if (color == ambientColor && ambient.getBackground() != null) return;
         ambientColor = color;
         BitmapDrawable glow = (BitmapDrawable) ambient.getBackground();
@@ -1816,7 +1833,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             ambient.setBackground(glow);
         }
         // The default tint mode, SRC_IN, keeps the mask's alpha and takes the colour from the tint.
-        glow.setTint(0xFF000000 | color);
+        glow.setTint(ThemePalette.BLACK | color);
     }
 
     private void transitionAmbient(int color) {
@@ -2144,6 +2161,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private void focusLibrary() {
         cancelPendingFocusScroll();
+
         int position = adapter.appCount();
         if (!adapter.isLibraryAt(position)) return;
         RecyclerView.ViewHolder holder = grid.findViewHolderForAdapterPosition(position);
@@ -2157,6 +2175,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         if (!animations) {
             grid.scrollToPosition(position);
+
             grid.post(() -> {
                 if (appLibrary != null || !hasWindowFocus()) return;
                 RecyclerView.ViewHolder footer = grid.findViewHolderForAdapterPosition(adapter.appCount());
@@ -2288,7 +2307,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     // ---- race-weekend panel (a theme's race_calendar) -----------------------------------------------
 
-    private static final int RACE_RED = 0xFFFF3B2F;
 
     /**
      * Shows or hides the race-weekend panel for this minute. Text only, set once a minute with the clock:
@@ -2308,7 +2326,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
         if (s.live != null) {
             SpannableString live = new SpannableString("\u25CF  " + getString(R.string.race_live, s.live.title(getResources())));
-            live.setSpan(new android.text.style.ForegroundColorSpan(RACE_RED), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            live.setSpan(new android.text.style.ForegroundColorSpan(style.palette.accent), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             raceHeadline.setText(live);
         } else if (s.next != null) {
             String in = RaceWeekend.countdown(getResources(), s.untilNext);
@@ -2330,10 +2348,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             row.append(session.shortName(getResources())).append("  ").append(when.format(session.start).toUpperCase(Locale.getDefault()));
             int color;
             switch (s.statuses.get(i)) {
-                case DONE: color = 0x47FFFFFF; break;
-                case LIVE: color = RACE_RED; break;
-                case NEXT: color = 0xFFFFFFFF; break;
-                default: color = 0x99FFFFFF;
+                case DONE: color = style.palette.secondary; break;
+                case LIVE: color = style.palette.accent; break;
+                case NEXT: color = style.palette.text; break;
+                default: color = style.palette.secondary;
             }
             row.setSpan(new android.text.style.ForegroundColorSpan(color), start, row.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
@@ -2408,7 +2426,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (vpn || vpnDown) {
             // Network name, then the green lock-and-VPN (or red "VPN off") capsule drawn in place of the word.
             String badge = getString(vpn ? R.string.vpn : R.string.vpn_off);
-            VpnBadge span = new VpnBadge(vpn ? getDrawable(R.drawable.ic_lock) : null, density);
+            VpnBadge span = new VpnBadge(vpn ? getDrawable(R.drawable.ic_lock) : null, density, style);
             // The pill has a maximum width and ellipsizes at the end, which would cut the badge off after
             // a long network name, so shorten the name to whatever room the badge leaves. The total paddings
             // include the Wi-Fi icon.
@@ -2492,8 +2510,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private static void setFestiveIcon(TextView pill, Drawable icon) {
-        // The pills tint their icons to follow focus; the festive ones keep their own colours.
-        pill.setCompoundDrawableTintList(null);
+        // Launcher-owned glyphs follow the palette, including the festive silhouettes.
+        pill.setCompoundDrawableTintList(pill.getTextColors());
         pill.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null);
     }
 
@@ -2519,7 +2537,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         r += (int) ((255 - r) * amount);
         g += (int) ((255 - g) * amount);
         b += (int) ((255 - b) * amount);
-        return 0xFF000000 | (r << 16) | (g << 8) | b;
+        return ThemePalette.BLACK | (r << 16) | (g << 8) | b;
     }
 
     /** The network pill opens the VPN app when one is configured and installed, otherwise Wi-Fi settings. */
@@ -2840,6 +2858,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private PopupWindow glassPopup(View panel, int width) {
+        ThemeStyle.get(this).panel(panel);
         final PopupWindow popup = new PopupWindow(panel, width, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));   // needed for Back to dismiss
         popup.setOutsideTouchable(true);
@@ -2854,6 +2873,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     /** Drop in: fade and unfold from the top edge, hanging under the anchor pill. */
     private void dropIn(PopupWindow popup, View panel, View anchor, int gravity) {
+        ThemeStyle.get(this).panel(panel);
+        if (!animations) {
+            popup.showAsDropDown(anchor, 0, (int) (10 * density), gravity);
+            return;
+        }
         panel.setAlpha(0f);
         panel.setPivotY(0f);
         panel.setScaleY(0.92f);
@@ -2865,7 +2889,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private void addSeparator(LinearLayout rows) {
         View line = new View(this);
-        line.setBackgroundColor(0x1FFFFFFF);
+        line.setBackgroundColor(ThemePalette.alpha(ThemeStyle.get(this).palette.text, 31));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) density);
         int m = (int) (6 * density), h = (int) (12 * density);
         lp.setMargins(h, m, h, m);
@@ -2988,12 +3012,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (at[1] + card.getHeight() + gap + height <= root.getHeight()) {
             dropIn(popup, panel, card, Gravity.START);
         } else {
+            ThemeStyle.get(this).panel(panel);
+            if (!animations) {
+                popup.showAtLocation(root, Gravity.NO_GRAVITY, at[0], Math.max(0, at[1] - gap - height));
+                rows.getChildAt(0).requestFocus();
+                return;
+            }
             panel.setAlpha(0f);
             panel.setPivotY(height);
             panel.setScaleY(0.92f);
             panel.setTranslationY(8 * density);
             popup.showAtLocation(root, Gravity.NO_GRAVITY, at[0], Math.max(0, at[1] - gap - height));
-            panel.animate().alpha(1f).scaleY(1f).translationY(0f).setDuration(220)
+            panel.animate().alpha(1f).scaleY(1f).translationY(0f).setDuration(reducedMotion ? Motion.REDUCED_MS : 220)
                     .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f)).start();
         }
         rows.getChildAt(0).requestFocus();
@@ -3099,6 +3129,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         show.setOnKeyListener(keys);
         cardPrompt = dialog;
         dialog.show();
+        ThemeStyle.get(this).panel(panel);
         keep.requestFocus();
     }
 

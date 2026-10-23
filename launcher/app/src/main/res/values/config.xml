@@ -7,6 +7,20 @@
 -->
 <resources>
 
+    <!-- Shared visual tokens; a theme may override each one. "auto" derives contrast from the background. -->
+    <string name="background_color" translatable="false">#000000</string>
+    <string name="surface_color" translatable="false">auto</string>
+    <string name="text_color" translatable="false">auto</string>
+    <string name="text_secondary_color" translatable="false">auto</string>
+    <string name="accent_color" translatable="false">#6EC1FF</string>
+    <string name="focus_color" translatable="false">auto</string>
+    <string name="glow_color" translatable="false">auto</string>
+    <integer name="corner_radius">16</integer>
+    <integer name="pill_radius">21</integer>
+    <integer name="spacing">12</integer>
+    <string name="icon_shape" translatable="false">square</string>
+    <string name="tile_backplate" translatable="false">solid</string>
+
     <!-- Tried in order when no standard settings handler is usable; each package must also be visible
          through <queries> in the manifest. -->
     <string-array name="settings_fallback_components" translatable="false">

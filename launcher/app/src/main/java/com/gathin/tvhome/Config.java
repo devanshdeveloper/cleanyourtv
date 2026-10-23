@@ -33,7 +33,7 @@ import java.util.Set;
  * unknown or badly typed key is ignored, so a theme can change the dock and the look without a rebuild:
  * {@code tools/theme.sh themes/<name>} pushes a theme folder there and restarts Home.
  *
- * Read once in {@link MainActivity#onCreate}; nothing here touches the network.
+ * Cached by ThemeSession until a theme file, revision or on-TV choice changes; nothing touches the network.
  */
 final class Config {
     private static final String TAG = "TvHome.Config";
@@ -62,7 +62,9 @@ final class Config {
             "show_stats", "shamsi_date", "app_library", "tile_menu", "boot_to_live_tv",
             "wallpaper_dim", "wallpaper_rotation_minutes", "wallpaper_order",
             "settings_key_panel", "key_filter", "handle_view_inputs", "restore_key_services",
-            "coocaa_sources"
+            "coocaa_sources", "theme_preset", "surface_color", "text_color", "text_secondary_color",
+            "accent_color", "focus_color", "glow_color", "corner_radius", "pill_radius", "spacing",
+            "icon_shape", "tile_backplate"
     };
 
     /** True when Launcher settings changed something since Home was built at revision {@code seen}. */
@@ -222,6 +224,7 @@ final class Config {
     final boolean tileMenu;
     /** Suppress the F1 race countdown panel (config.json race_calendar); true by default. */
     final boolean f1Countdown;
+    final ThemeStyle style;
 
     private Config(List<String> dockApps, boolean fillDock, List<String> hiddenApps, List<String> libraryApps, String liveTvPackage,
                    String liveTvAction, String liveTvInputId, Map<String, String> launchActions, Map<String, String> appLabels,
@@ -237,7 +240,8 @@ final class Config {
                    boolean keyFilter, boolean dockGlass, String glowStyle, boolean wallpaperCaptions,
                    boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding, boolean f1Countdown,
                    boolean cinematicDots, boolean cinematicWhiteFocus, boolean wifiStatusColor, int cinematicScrim, int cinematicArt,
-                   Map<String, Set<String>> wallpaperMoods) {
+                   Map<String, Set<String>> wallpaperMoods, ThemeStyle style) {
+        this.style = style;
         this.f1Countdown = f1Countdown;
         this.handleViewInputs = handleViewInputs;
         this.tileMenu = tileMenu;
@@ -331,7 +335,9 @@ final class Config {
         return ctx.getExternalFilesDir(null);
     }
 
-    static Config load(Context ctx) {
+    static Config load(Context ctx) { return ThemeSession.config(ctx); }
+
+    static Config resolve(Context ctx) {
         Resources res = ctx.getResources();
         List<String> dock = new ArrayList<>(Arrays.asList(res.getStringArray(R.array.dock_apps)));
         boolean fillDock = res.getBoolean(R.bool.fill_dock);
@@ -379,7 +385,7 @@ final class Config {
         boolean showStats = res.getBoolean(R.bool.show_stats);
         boolean library = res.getBoolean(R.bool.app_library);
         boolean librarySelection = res.getBoolean(R.bool.app_library_selection);
-        int background = 0xFF000000;
+        int background = ThemePalette.color(res.getString(R.string.background_color), ThemePalette.BLACK);
         int skyIntensity = res.getInteger(R.integer.sky_intensity);
         int[] settingsKeycodes = res.getIntArray(R.array.settings_key_keycodes);
         boolean settingsKeyPanel = res.getBoolean(R.bool.settings_key_panel);
@@ -409,6 +415,11 @@ final class Config {
         File file = dir != null ? new File(dir, FILE_NAME) : null;
         boolean mounted = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
         JSONObject json = readOverlay(ctx, file, mounted);
+        SharedPreferences choices = ctx.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE);
+        // Check the pushed theme before resolving a preset. Unmounted storage is not a reset.
+        if (mounted) syncThemeChoices(choices, dir, file);
+        String preset = choices.getString("theme_preset", null);
+        if (preset != null) json = ThemePresets.read(ctx, preset, json);
         if (json != null) {
             applied = true;
             dock = stringList(json, "dock_apps", dock);
@@ -483,11 +494,6 @@ final class Config {
             if (moods != null) wallpaperMoods = moods(moods);
             glowStyle = string(json, "glow_style", glowStyle);
         }
-        // A theme push or reset invalidates choices made on the TV. On first use, remember the
-        // current theme without clearing choices from an older launcher version.
-        SharedPreferences choices = ctx.getSharedPreferences(SETTINGS_NAME, Context.MODE_PRIVATE);
-        // Unmounted storage looks like a theme reset; compare only once the file is readable.
-        if (mounted) syncThemeChoices(choices, dir, file);
         int chosenColumns = choices.getInt("columns", columns);
         if (chosenColumns >= 4 && chosenColumns <= 7) columns = chosenColumns;
         int chosenRows = choices.getInt(ROWS_BELOW_DOCK_KEY, rowsBelow);
@@ -532,7 +538,8 @@ final class Config {
         restoreKeyServices = choices.getBoolean("restore_key_services", restoreKeyServices);
         coocaaSources = choices.getBoolean("coocaa_sources", coocaaSources);
         boolean f1Countdown = choices.getBoolean("f1_countdown", true);
-        File wallpaper = dir != null ? new File(dir, WALLPAPER_NAME) : null;
+        File themeDir = preset == null ? dir : ThemePresets.directory(ctx, preset);
+        File wallpaper = themeDir != null ? new File(themeDir, WALLPAPER_NAME) : null;
         if (wallpaper != null && !(wallpaper.isFile() && wallpaper.length() > 0)) wallpaper = null;
         // A theme can also switch the wallpaper off while the file is still there.
         boolean wallpaperEnabled = json == null || bool(json, "wallpaper", true);
@@ -556,15 +563,15 @@ final class Config {
             if (WallpaperRotation.validOrder(ord)) wallpaperOrder = ord;
         }
         List<File> wallpapers = new ArrayList<>();
-        if (rotationMinutes > 0 && dir != null && wallpaperEnabled) {
-            wallpapers.addAll(WallpaperRotation.images(new File(dir, "wallpapers")));
+        if (rotationMinutes > 0 && themeDir != null && wallpaperEnabled) {
+            wallpapers.addAll(WallpaperRotation.images(new File(themeDir, "wallpapers")));
         }
         if (wallpapers.isEmpty() && wallpaper != null) wallpapers.add(wallpaper);
         // An on-TV wallpaper pick overrides the theme: a filename from the wallpapers/
         // collection, or "none". Unset means the theme decides (off by default).
         String wallpaperChoice = choices.getString(WALLPAPER_CHOICE_KEY, null);
-        List<File> chosen = WallpaperRotation.chosen(dir == null ? Collections.emptyList()
-                : WallpaperRotation.images(new File(dir, "wallpapers")), wallpaper, wallpaperChoice);
+        List<File> chosen = WallpaperRotation.chosen(themeDir == null ? Collections.emptyList()
+                : WallpaperRotation.images(new File(themeDir, "wallpapers")), wallpaper, wallpaperChoice);
         if (chosen != null) {
             wallpapers.clear();
             wallpapers.addAll(chosen);
@@ -584,7 +591,8 @@ final class Config {
                 wallpapers, rotationMinutes, wallpaperDim, dockOpacity, wallpaperOrder, applied,
                 festival, inputKeycodes, appKeys, stockHomeRedirect, (json == null || !f1Countdown) ? Collections.emptyList() : raceCalendar(json), cinematic, ambientGlow, appGlow, fadeRows,
                 Math.max(0, idleClockMinutes), keyFilter, dockGlass, glowStyle, wallpaperCaptions, handleViewInputs, tileMenu, dockEvenPadding, f1Countdown,
-                cinematicDots, cinematicWhiteFocus, wifiStatusColor, cinematicScrim, cinematicArt, wallpaperMoods);
+                cinematicDots, cinematicWhiteFocus, wifiStatusColor, cinematicScrim, cinematicArt, wallpaperMoods,
+                new ThemeStyle(ctx, json, background));
     }
 
     /**
@@ -626,11 +634,11 @@ final class Config {
             // Existing preferences survive an app upgrade, unless the first launch follows an
             // explicit theme push or reset by the updated tools.
             SharedPreferences.Editor editor = choices.edit();
-            if (!"absent".equals(token)) {
+            if (ThemeChoiceRules.clear(seen, signature, token)) {
                 for (String key : ON_TV_KEYS) editor.remove(key);
             }
             editor.putString(THEME_SIGNATURE_KEY, signature).commit();
-        } else if (!seen.equals(signature)) {
+        } else if (ThemeChoiceRules.clear(seen, signature, token)) {
             SharedPreferences.Editor editor = choices.edit();
             for (String key : ON_TV_KEYS) editor.remove(key);
             editor.putString(THEME_SIGNATURE_KEY, signature).commit();
@@ -726,19 +734,18 @@ final class Config {
 
     private static String string(JSONObject o, String key, String fallback) {
         Object v = o.opt(key);
-        return v instanceof String ? ((String) v).trim() : fallback;
+        return ThemePalette.string(v, fallback);
     }
 
     private static boolean bool(JSONObject o, String key, boolean fallback) {
         Object v = o.opt(key);
-        return v instanceof Boolean ? (Boolean) v : fallback;
+        return ThemePalette.bool(v, fallback);
     }
 
     private static int integer(JSONObject o, String key, int fallback, int min, int max) {
         Object v = o.opt(key);
         if (!(v instanceof Number)) return fallback;
-        int i = ((Number) v).intValue();
-        return i < min || i > max ? fallback : i;
+        return ThemePalette.integer(v, fallback, min, max);
     }
 
     private static int color(JSONObject o, String key, int fallback) {
@@ -746,7 +753,7 @@ final class Config {
         if (!(v instanceof String)) return fallback;
         try {
             int c = Color.parseColor(((String) v).trim());
-            return c | 0xFF000000;   // always opaque: the window behind is black anyway
+            return c | ThemePalette.BLACK;   // backgrounds are always opaque
         } catch (IllegalArgumentException e) {
             return fallback;
         }
@@ -757,14 +764,9 @@ final class Config {
         Object v = o.opt(key);
         if (!(v instanceof JSONArray)) return fallback;
         JSONArray a = (JSONArray) v;
-        int[] out = new int[a.length()];
-        for (int i = 0; i < a.length(); i++) {
-            Object item = a.opt(i);
-            if (!(item instanceof Number)) return fallback;
-            out[i] = ((Number) item).intValue();
-            if (out[i] < 1) return fallback;
-        }
-        return out;
+        Object[] values = new Object[a.length()];
+        for (int i = 0; i < a.length(); i++) values[i] = a.opt(i);
+        return ThemePalette.keycodes(values, fallback);
     }
 
     /** "package=value" entries; an entry without both halves is skipped, and a later entry for a package wins. */
@@ -783,11 +785,8 @@ final class Config {
         Object v = o.opt(key);
         if (!(v instanceof JSONArray)) return fallback;
         JSONArray a = (JSONArray) v;
-        List<String> out = new ArrayList<>();
-        for (int i = 0; i < a.length(); i++) {
-            Object item = a.opt(i);
-            if (item instanceof String && !((String) item).trim().isEmpty()) out.add(((String) item).trim());
-        }
-        return out;
+        Object[] values = new Object[a.length()];
+        for (int i = 0; i < a.length(); i++) values[i] = a.opt(i);
+        return ThemePalette.strings(values, fallback);
     }
 }

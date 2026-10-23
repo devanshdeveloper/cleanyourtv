@@ -15,10 +15,6 @@ import androidx.annotation.NonNull;
  */
 final class VpnBadge extends ReplacementSpan {
 
-    private static final int GREEN = 0xFF30D158;
-    private static final int INK = 0xFF06290F;
-    private static final int RED = 0xFFFF453A;
-    private static final int INK_OFF = 0xFFFFFFFF;
 
     private final Drawable lock;
     private final float density;
@@ -26,9 +22,9 @@ final class VpnBadge extends ReplacementSpan {
     private final RectF rect = new RectF();
 
     /** @param lock the lock icon for the "up" badge, or null for the red "off" badge */
-    VpnBadge(Drawable lock, float density) {
-        this.fill = lock != null ? GREEN : RED;
-        this.ink = lock != null ? INK : INK_OFF;
+    VpnBadge(Drawable lock, float density, ThemeStyle style) {
+        this.fill = lock != null ? style.palette.accent : style.palette.focus;
+        this.ink = ThemePalette.ink(fill);
         this.lock = lock != null ? lock.mutate() : null;
         if (this.lock != null) this.lock.setTint(ink);
         this.density = density;

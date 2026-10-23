@@ -9,6 +9,14 @@ import android.service.dreams.DreamService;
 public class ClockDream extends DreamService {
 
     private ClockScene scene;
+    private final android.database.ContentObserver themeChanges = new android.database.ContentObserver(
+            new android.os.Handler(android.os.Looper.getMainLooper())) {
+        @Override public void onChange(boolean selfChange) {
+            if (scene != null) scene.close();
+            scene = new ClockScene(getWindow().getDecorView());
+            scene.start();
+        }
+    };
 
     @Override
     public void onAttachedToWindow() {
@@ -23,18 +31,20 @@ public class ClockDream extends DreamService {
     @Override
     public void onDreamingStarted() {
         super.onDreamingStarted();
+        getContentResolver().registerContentObserver(android.net.Uri.parse("content://" + getPackageName() + ".theme"), true, themeChanges);
         scene.start();
     }
 
     @Override
     public void onDreamingStopped() {
+        getContentResolver().unregisterContentObserver(themeChanges);
         scene.stop();
         super.onDreamingStopped();
     }
 
     @Override
     public void onDetachedFromWindow() {
-        if (scene != null) scene.stop();
+        if (scene != null) scene.close();
         super.onDetachedFromWindow();
     }
 }
