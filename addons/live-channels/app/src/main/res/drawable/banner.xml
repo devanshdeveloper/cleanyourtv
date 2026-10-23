@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp" android:height="180dp"
+    android:viewportWidth="320" android:viewportHeight="180">
+    <path android:fillColor="#FF1B382B" android:pathData="M0,0h320v180h-320z" />
+    <path android:fillColor="#FF2E7D32" android:pathData="M0,130h320v50h-320z" />
+    <!-- TV frame -->
+    <path android:fillColor="#FF388E3C" android:pathData="M80,35h160a12,12 0 0 1 12,12v70a12,12 0 0 1 -12,12h-160a12,12 0 0 1 -12,-12v-70a12,12 0 0 1 12,-12z" />
+    <path android:fillColor="#FF121212" android:pathData="M86,41h148v68h-148z" />
+    <!-- Play / Signal triangle inside screen -->
+    <path android:fillColor="#FF81C784" android:pathData="M150,56l28,18l-28,18z" />
+    <!-- TV stand -->
+    <path android:fillColor="#FF81C784" android:pathData="M148,129h24v12h-24z" />
+    <path android:fillColor="#FF81C784" android:pathData="M136,141h48v4h-48z" />
+</vector>

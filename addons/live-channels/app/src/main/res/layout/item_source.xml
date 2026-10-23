@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/card_bg"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:layout_marginBottom="10dp">
+
+    <!-- Source details -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvSourceName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvSourceType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#81C784"
+            android:textSize="12sp"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+    <!-- Source action buttons -->
+    <Button
+        android:id="@+id/btnOpen"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:background="@drawable/btn_pill"
+        android:text="@string/action_open"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:focusable="true"
+        android:layout_marginEnd="8dp" />
+
+    <Button
+        android:id="@+id/btnMoveUp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/btn_pill"
+        android:text="▲"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:focusable="true"
+        android:layout_marginEnd="6dp" />
+
+    <Button
+        android:id="@+id/btnMoveDown"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="@drawable/btn_pill"
+        android:text="▼"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:focusable="true"
+        android:layout_marginEnd="8dp" />
+
+    <Button
+        android:id="@+id/btnRename"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:background="@drawable/btn_pill"
+        android:text="@string/action_rename"
+        android:textColor="#CCCCCC"
+        android:textSize="12sp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:focusable="true"
+        android:layout_marginEnd="6dp" />
+
+    <Button
+        android:id="@+id/btnDelete"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:background="@drawable/btn_pill"
+        android:text="@string/action_delete"
+        android:textColor="#EF9A9A"
+        android:textSize="12sp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:focusable="true" />
+</LinearLayout>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Live Channels</string>
+    <string name="title_live_sources">Live Channels</string>
+    <string name="subtitle">Launcher for HDMI, TV tuner, and live broadcast apps</string>
+    <string name="btn_open_last">Open Last</string>
+    <string name="btn_add_source">+ Add Source</string>
+    <string name="toggle_open_on_launch">Open on launch</string>
+    <string name="type_input">HDMI / AV Port</string>
+    <string name="type_tuner">TV Tuner</string>
+    <string name="type_app">Installed App</string>
+    <string name="action_open">Open</string>
+    <string name="action_move_up">Move Up</string>
+    <string name="action_move_down">Move Down</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_delete">Delete</string>
+    <string name="dialog_add_title">Choose Source Type</string>
+    <string name="dialog_select_input">Select TV Input</string>
+    <string name="dialog_select_app">Select Installed App</string>
+    <string name="dialog_rename_title">Rename Source</string>
+    <string name="dialog_delete_confirm">Delete this source?</string>
+    <string name="dialog_save">Save</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="no_sources">No sources added yet. Select \'+ Add Source\' above.</string>
+    <string name="no_inputs_found">No TV inputs found on this device.</string>
+    <string name="cant_open_source">Unable to open source: %1$s</string>
+    <string name="last_opened_label">Last: %1$s</string>
+</resources>
