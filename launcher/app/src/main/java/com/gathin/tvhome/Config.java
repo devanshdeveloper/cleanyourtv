@@ -54,7 +54,12 @@ final class Config {
             "ambient_glow", "app_glow", "glow_style", "sky_intensity", "home_idle_clock_minutes",
             "fill_dock", "dock_row", "top_menu", "show_network_pill", "show_inputs_pill",
             "icon_only_buttons", "icon_only_inputs", "library_button", "wifi_label_width",
-            "launcher_settings_button", "reorder_button", "show_home_settings_shortcut"
+            "launcher_settings_button", "reorder_button", "show_home_settings_shortcut",
+            "module_cards", "f1_countdown", "reduced_motion", "focus_overshoot",
+            "show_stats", "shamsi_date", "app_library", "tile_menu", "boot_to_live_tv",
+            "wallpaper_dim", "wallpaper_rotation_minutes", "wallpaper_order",
+            "settings_key_panel", "key_filter", "handle_view_inputs", "restore_key_services",
+            "coocaa_sources"
     };
 
     /** True when Launcher settings changed something since Home was built at revision {@code seen}. */
@@ -196,6 +201,8 @@ final class Config {
     final boolean handleViewInputs;
     /** Hold OK on a tile opens a menu (Move, Remove from Home, App info) instead of App info (config.xml / theme tile_menu). */
     final boolean tileMenu;
+    /** Suppress the F1 race countdown panel (config.json race_calendar); true by default. */
+    final boolean f1Countdown;
 
     private Config(List<String> dockApps, boolean fillDock, List<String> hiddenApps, List<String> libraryApps, String liveTvPackage,
                    String liveTvAction, String liveTvInputId, Map<String, String> launchActions, Map<String, String> appLabels,
@@ -209,7 +216,8 @@ final class Config {
                    Festival festival, int[] inputKeycodes, List<String> appKeys, String stockHomeRedirect,
                    List<RaceWeekend.Race> raceCalendar, boolean cinematicHome, boolean ambientGlow, boolean appGlow, int homeIdleClockMinutes,
                    boolean keyFilter, boolean dockGlass, String glowStyle, boolean wallpaperCaptions,
-                   boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding) {
+                   boolean handleViewInputs, boolean tileMenu, boolean dockEvenPadding, boolean f1Countdown) {
+        this.f1Countdown = f1Countdown;
         this.handleViewInputs = handleViewInputs;
         this.tileMenu = tileMenu;
         this.inputKeycodes = inputKeycodes;
@@ -464,19 +472,43 @@ final class Config {
         launcherSettingsButton = choices.getBoolean("launcher_settings_button", launcherSettingsButton);
         reorderButton = choices.getBoolean("reorder_button", reorderButton);
         homeSettings = choices.getBoolean("show_home_settings_shortcut", homeSettings);
+        moduleCards = choices.getBoolean("module_cards", moduleCards);
+        reducedMotion = choices.getBoolean("reduced_motion", reducedMotion);
+        focusOvershoot = choices.getBoolean("focus_overshoot", focusOvershoot);
+        showStats = choices.getBoolean("show_stats", showStats);
+        shamsi = choices.getBoolean("shamsi_date", shamsi);
+        library = choices.getBoolean("app_library", library);
+        tileMenu = choices.getBoolean("tile_menu", tileMenu);
+        bootToLiveTv = choices.getBoolean("boot_to_live_tv", bootToLiveTv);
+        settingsKeyPanel = choices.getBoolean("settings_key_panel", settingsKeyPanel);
+        keyFilter = choices.getBoolean("key_filter", keyFilter);
+        handleViewInputs = choices.getBoolean("handle_view_inputs", handleViewInputs);
+        restoreKeyServices = choices.getBoolean("restore_key_services", restoreKeyServices);
+        coocaaSources = choices.getBoolean("coocaa_sources", coocaaSources);
+        boolean f1Countdown = choices.getBoolean("f1_countdown", true);
         File wallpaper = dir != null ? new File(dir, WALLPAPER_NAME) : null;
         if (wallpaper != null && !(wallpaper.isFile() && wallpaper.length() > 0)) wallpaper = null;
         // A theme can also switch the wallpaper off while the file is still there.
         boolean wallpaperEnabled = json == null || bool(json, "wallpaper", true);
         if (!wallpaperEnabled) wallpaper = null;
         int rotationMinutes = json == null ? 0 : integer(json, "wallpaper_rotation_minutes", 0, 0, 1440);
+        if (choices.contains("wallpaper_rotation_minutes")) {
+            rotationMinutes = choices.getInt("wallpaper_rotation_minutes", rotationMinutes);
+        }
         int wallpaperDim = json == null ? 0 : integer(json, "wallpaper_dim", 0, 0, 90);
+        if (choices.contains("wallpaper_dim")) {
+            wallpaperDim = choices.getInt("wallpaper_dim", wallpaperDim);
+        }
         int dockOpacity = json == null ? 100 : integer(json, "dock_opacity", 100, 30, 100);
         dockOpacity = chosenDockOpacity(choices.getInt(DOCK_OPACITY_KEY, -1), dockOpacity);
         String wallpaperOrder = json == null ? WallpaperRotation.ORDER_SHUFFLE
                 : string(json, "wallpaper_order", WallpaperRotation.ORDER_SHUFFLE);
         // An unknown order must not silently change how an existing collection rotates.
         if (!WallpaperRotation.validOrder(wallpaperOrder)) wallpaperOrder = WallpaperRotation.ORDER_SHUFFLE;
+        if (choices.contains("wallpaper_order")) {
+            String ord = choices.getString("wallpaper_order", wallpaperOrder);
+            if (WallpaperRotation.validOrder(ord)) wallpaperOrder = ord;
+        }
         List<File> wallpapers = new ArrayList<>();
         if (rotationMinutes > 0 && dir != null && wallpaperEnabled) {
             wallpapers.addAll(WallpaperRotation.images(new File(dir, "wallpapers")));
@@ -504,8 +536,8 @@ final class Config {
                 shamsi, greetingName, moduleCards, reducedMotion, bootToLiveTv, dockTitle, dockRow, topMenu, launcherSettingsButton, reorderButton, showNetworkPill, showInputsPill, iconOnlyButtons, iconOnlyInputs, libraryButton, wifiLabelWidth, alwaysShowNames, wallpaperTrueColor, focusOvershoot, vpn, homeSettings, showStats, library, background,
                 Math.max(0, Math.min(100, skyIntensity)), settingsKeycodes, settingsKeyPanel, restoreKeyServices, wallpaperEnabled, wallpaper,
                 wallpapers, rotationMinutes, wallpaperDim, dockOpacity, wallpaperOrder, applied,
-                festival, inputKeycodes, appKeys, stockHomeRedirect, json == null ? Collections.emptyList() : raceCalendar(json), cinematic, ambientGlow, appGlow,
-                Math.max(0, idleClockMinutes), keyFilter, dockGlass, glowStyle, wallpaperCaptions, handleViewInputs, tileMenu, dockEvenPadding);
+                festival, inputKeycodes, appKeys, stockHomeRedirect, (json == null || !f1Countdown) ? Collections.emptyList() : raceCalendar(json), cinematic, ambientGlow, appGlow,
+                Math.max(0, idleClockMinutes), keyFilter, dockGlass, glowStyle, wallpaperCaptions, handleViewInputs, tileMenu, dockEvenPadding, f1Countdown);
     }
 
     /**

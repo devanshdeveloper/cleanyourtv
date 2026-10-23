@@ -2863,13 +2863,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             status.setText(network);
             status.setVisibility(View.VISIBLE);
         }
-        if (launcherSettingsButton) {
-            addInputRow(rows, popup, R.drawable.ic_home_settings_pill, getString(R.string.launcher_settings), -1,
-                    () -> startActivityForResult(new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST));
-        } else {
-            addInputRow(rows, popup, R.drawable.ic_settings, getString(R.string.settings), -1,
-                    () -> open(systemIntent(Settings.ACTION_SETTINGS)));
-        }
+        addInputRow(rows, popup, R.drawable.ic_home_settings_pill, getString(R.string.launcher_settings), -1,
+                () -> startActivityForResult(new Intent(this, LauncherSettingsActivity.class), LAUNCHER_SETTINGS_REQUEST));
+        addInputRow(rows, popup, R.drawable.ic_settings, getString(R.string.settings), -1,
+                () -> open(systemIntent(Settings.ACTION_SETTINGS)));
+
         panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
         popup.setWidth(Math.max((int) (220 * density), Math.min(panel.getMeasuredWidth(), (int) (360 * density))));
         dropIn(popup, panel, anchor, getResources().getBoolean(R.bool.rtl_menu_bar) ? Gravity.START : Gravity.END);

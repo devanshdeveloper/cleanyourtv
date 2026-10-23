@@ -54,6 +54,7 @@
     <string name="wallpaper_none">None</string>
     <string name="wallpaper_applied">Wallpaper changed</string>
     <string name="wallpaper_theme_default">Theme default</string>
+    <string name="animations_label">Animations</string>
     <string name="animations_state">Animations: %1$s</string>
     <string name="advanced_effects">Advanced effects</string>
     <string name="advanced_effects_state">Advanced effects: %1$s</string>
@@ -180,4 +181,89 @@
     <string name="opt_reorder_button">Show reorder button</string>
     <string name="opt_show_home_settings_shortcut">Home settings shortcut</string>
     <string name="dp_unit">%1$d dp</string>
+
+    <!-- Theme picker -->
+    <string name="theme_label">Theme</string>
+    <string name="theme_state">Theme: %1$s</string>
+    <string name="theme_built_in">Built-in (config.xml)</string>
+    <string name="theme_preset_default">Default</string>
+    <string name="theme_preset_aurora">Aurora</string>
+    <string name="theme_preset_dussehra">Dussehra</string>
+    <string name="theme_preset_glass">Glass</string>
+    <string name="theme_preset_scenes">Scenes</string>
+    <string name="theme_preset_six_columns">Six columns</string>
+    <string name="theme_reset_choice">Reset to built-in (config.xml)</string>
+
+    <!-- Add-ons and module cards -->
+    <string name="settings_section_addons">Add-ons and cards</string>
+    <string name="manage_addons">Manage add-ons</string>
+    <string name="opt_module_cards">Module cards</string>
+    <string name="opt_f1_countdown">F1 race countdown</string>
+    <string name="no_cards_installed">No module cards installed. Sideload an add-on APK to configure it here.</string>
+
+    <!-- Motion and performance -->
+    <string name="settings_section_motion">Motion and performance</string>
+    <string name="opt_reduced_motion">Reduced motion</string>
+    <string name="opt_focus_overshoot">Focus bounce overshoot</string>
+
+    <!-- Information and clock -->
+    <string name="settings_section_info">Information and clock</string>
+    <string name="opt_show_stats">System stats under clock</string>
+    <string name="opt_shamsi_date">Solar Hijri (Shamsi) date</string>
+
+    <!-- Apps and navigation -->
+    <string name="settings_section_nav">Apps and navigation</string>
+    <string name="opt_app_library">App library</string>
+    <string name="opt_tile_menu">Tile popup menu</string>
+    <string name="opt_boot_to_live_tv">Boot to Live TV</string>
+
+    <!-- Wallpaper options -->
+    <string name="settings_section_wallpaper">Wallpaper options</string>
+    <string name="opt_wallpaper_rotation">Wallpaper rotation</string>
+    <string name="opt_wallpaper_order">Wallpaper order</string>
+    <string name="wallpaper_order_shuffle">Shuffle</string>
+    <string name="wallpaper_order_sequential">Sequential</string>
+    <string name="opt_wallpaper_dim">Wallpaper dimming</string>
+
+    <!-- Remote and key helpers -->
+    <string name="settings_section_remote">Remote and key helpers</string>
+    <string name="opt_settings_key_panel">Quick settings on gear key</string>
+    <string name="opt_key_filter">Remote key filtering</string>
+    <string name="opt_handle_view_inputs">Handle View Inputs action</string>
+    <string name="opt_restore_key_services">Restore key helpers after restart</string>
+    <string name="opt_coocaa_sources">Coocaa OS TV inputs</string>
+    <string name="restore_key_services_perm_title">Permission required</string>
+    <string name="restore_key_services_perm_message">Restoring key helpers requires WRITE_SECURE_SETTINGS permission via ADB:\npm grant com.gathin.tvhome android.permission.WRITE_SECURE_SETTINGS</string>
+    <!-- Category navigation and descriptions -->
+    <string name="launcher_settings_help">Choose a category to customize your home screen</string>
+    <string name="back_to_categories">← Categories</string>
+    <string name="reset_category_defaults">Reset this category to theme defaults</string>
+    <string name="category_appearance">Appearance and themes</string>
+    <string name="category_appearance_desc">Themes, wallpapers, glass dock, sky backdrop, and glow</string>
+    <string name="category_layout">Layout and grid</string>
+    <string name="category_layout_desc">Columns, rows under dock, hero title, and filling</string>
+    <string name="category_top_bar">Dock and top bar</string>
+    <string name="category_top_bar_desc">Top menu, network pill, inputs pill, and button styles</string>
+    <string name="category_clock">Information and clock</string>
+    <string name="category_clock_desc">System stats under clock, Shamsi date, and screensaver</string>
+    <string name="category_apps">Apps and navigation</string>
+    <string name="category_apps_desc">App library, tile menu, boot to Live TV, and inputs</string>
+    <string name="category_motion">Motion and performance</string>
+    <string name="category_motion_desc">Animations, reduced motion, overshoot, and effects</string>
+    <string name="category_addons">Add-ons and module cards</string>
+    <string name="category_addons_desc">Master toggle, card manager, and sideload help</string>
+    <string name="category_f1">F1 race weekend</string>
+    <string name="category_f1_desc">Race countdown and session times under clock</string>
+    <string name="category_remote">Remote and key helpers</string>
+    <string name="category_remote_desc">Quick settings on gear key, key filtering, and helpers</string>
+    <string name="category_about">About and reset</string>
+    <string name="category_about_desc">Package info, APK size ceiling, and reset options</string>
+    <string name="about_version">CleanYourTV (package com.gathin.tvhome)</string>
+    <string name="about_size_gate">APK size gate: 10 MB ceiling</string>
+    <string name="about_size_desc">The launcher targets 1 GB TVs. Zero background services.</string>
+    <string name="disabled_no_live_tv">No Live TV tuner app configured in theme or config.xml</string>
+    <string name="disabled_requires_home_key_service">Requires HomeKeyService helper enabled via ADB</string>
+    <string name="disabled_requires_accessibility">Requires accessibility service running</string>
+    <string name="disabled_requires_secure_settings">Requires WRITE_SECURE_SETTINGS (grant via ADB)</string>
+    <string name="disabled_only_coocaa">Available only on Skyworth / Coocaa TVs</string>
 </resources>
