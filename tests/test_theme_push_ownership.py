@@ -104,6 +104,8 @@ elif action == "delete":
 
 class ThemePushTest(unittest.TestCase):
     def setUp(self):
+        if os.name == "nt" and not self._testMethodName.startswith("test_the_windows_script"):
+            self.skipTest("theme.sh test uses /bin/sh in stub; POSIX only")
         self.base = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, self.base, ignore_errors=True)
         self.tools = self.base / "tools"
@@ -113,7 +115,12 @@ class ThemePushTest(unittest.TestCase):
         (self.tools / "tv.py").write_text(FAKE_TV)
         venv = self.tools / "venv" / "bin"
         venv.mkdir(parents=True)
-        (venv / "python").symlink_to(sys.executable)
+        try:
+            (venv / "python").symlink_to(sys.executable)
+        except OSError:
+            py = Path(sys.executable).as_posix()
+            (venv / "python").write_text(f'#!/bin/sh\nexec "{py}" "$@"\n')
+            (venv / "python").chmod(0o755)
         self.bin = self.base / "bin"
         self.bin.mkdir()
         content = self.bin / "content"

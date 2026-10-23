@@ -46,12 +46,14 @@ class DebloatPathsTest(unittest.TestCase):
         shutil.copy2(ROOT / "tools" / script, tools / script)
         client = tools / "venv" / "bin" / "python"
         client.parent.mkdir(parents=True)
+        py_exe = Path(sys.executable).as_posix()
+        rec_py = (ROOT / "tools" / "recovery.py").as_posix()
         client.write_text(
             '#!/bin/sh\n'
             'if [ "$1" = "-I" ] && [ "$2" = "tools/recovery.py" ]; then\n'
             '  [ "$3" = "--save" ] && exit 0\n'
             '  shift 2\n'
-            f'  exec "{sys.executable}" "{ROOT / "tools" / "recovery.py"}" "$@"\n'
+            f'  exec "{py_exe}" "{rec_py}" "$@"\n'
             'fi\n'
             'cat > "$CAPTURE"\n'
         )

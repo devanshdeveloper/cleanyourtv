@@ -22,6 +22,9 @@ import re
 import sys
 import time
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(newline="\n")
+
 # Every name from the TV or from the list ends up inside a command run by the TV's shell, so nothing
 # that could carry shell syntax is allowed through.
 PACKAGE_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z0-9_]+)+")
@@ -72,7 +75,8 @@ def record_path(list_path, host):
     same file somewhere else gets its own record."""
     tag = re.sub(r"[^A-Za-z0-9.-]", "_", host or "no-host")
     digest = hashlib.sha1(str(Path(list_path).resolve()).encode()).hexdigest()[:8]
-    return Path.home() / ".cleanyourtv" / f"recovery-{tag}-{digest}.json"
+    home = Path(os.environ["HOME"]) if "HOME" in os.environ else Path.home()
+    return home / ".cleanyourtv" / f"recovery-{tag}-{digest}.json"
 
 
 def load_record(path):

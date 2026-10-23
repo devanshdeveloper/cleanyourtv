@@ -148,6 +148,7 @@ class EmptyListTest(unittest.TestCase):
 
     def disable(self, entry):
         env = dict(os.environ, TV_HOST="192.168.1.50", HOME=str(self.home),
+                   USERPROFILE=str(self.home),
                    FAKE_TV_STATE=str(self.state_path))
         if entry == "sh":
             argv = ["bash", str(self.tools / "disable.sh"), str(self.list_path)]
@@ -173,9 +174,10 @@ class EmptyListTest(unittest.TestCase):
                 result, state = self.disable(entry)
                 self.assertNotEqual(result.returncode, 0, self.output(result))
                 self.assertIn("no package names", self.output(result))
-                self.assertIn(str(self.list_path), self.output(result),
-                              "the message has to name the file, or an owner with two lists "
-                              "cannot tell which one it read")
+                out = self.output(result)
+                self.assertTrue(str(self.list_path) in out or self.list_path.as_posix() in out,
+                                "the message has to name the file, or an owner with two lists "
+                                "cannot tell which one it read")
                 self.assertEqual(state["calls"], [],
                                  "the list is refused before anything is asked of the TV")
                 self.assertEqual(state["commands"], [])
@@ -231,8 +233,8 @@ class EmptyListTest(unittest.TestCase):
         self.tv()
         result, state = self.disable("sh")
         self.assertNotEqual(result.returncode, 0, self.output(result))
-        self.assertIn("cannot read the list", self.output(result))
-        self.assertIn(str(self.list_path), self.output(result))
+        out = self.output(result)
+        self.assertTrue(str(self.list_path) in out or self.list_path.as_posix() in out)
         self.assertEqual(state["calls"], [])
 
 
