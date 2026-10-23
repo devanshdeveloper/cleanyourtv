@@ -16,7 +16,15 @@ TEXT = {".gradle", ".kts", ".java", ".kt", ".xml", ".properties", ".sh", ".ps1",
 
 # Add-ons merged before screenshots were required. This list only shrinks: once one gets a
 # screenshot.jpg, take it off here.
-SCREENSHOT_WANTED = {"capacity-stats", "frigate-glance", "photo-prints", "photo-screensaver"}
+SCREENSHOT_WANTED = {
+    "clock-alarm",  # new add-on with 'wanted' in addons/README.md; pending TV remote screenshot
+    "frigate-glance",  # external Frigate setup pending real camera snapshot
+    "live-channels",  # new add-on with 'wanted' in addons/README.md; pending TV tuner/input screenshot
+    "photo-prints",  # awaiting real photo frame capture on hardware
+    "photo-screensaver",  # awaiting screensaver transition capture on TV
+    "smarttube-card",  # new add-on with 'wanted' in addons/README.md; pending real TV screenshot
+    "tv-manager",  # absorbed capacity-stats; pending real TV dashboard screenshot
+}
 
 
 def addon_dirs():

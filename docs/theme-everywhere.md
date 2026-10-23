@@ -190,7 +190,7 @@ The release gate read from `.github/workflows/ci.yml:51` is
 - JDK 17 / Android SDK 34: `gradlew.bat --no-daemon testReleaseUnitTest lintRelease assembleRelease`
   **passed**. The XML results total **198 JVM tests**, zero failures/errors.
 - Lint: **zero errors, 103 warnings**. Warnings were not suppressed to make the build pass.
-- Release APK: **1,841,744 bytes**, below the unchanged **10,485,760-byte** gate.
+- Release APK: **1,841,764 bytes**, below the unchanged **10,485,760-byte** gate.
 - Focused Python theme tests: **46 run, OK, five POSIX-only skips**. This includes
   the three fixtures, source guard, theme paths and documentation-key coverage.
 - Strict complete Python suite: **676 run, 19 failures, 21 skipped**. The failures
@@ -237,7 +237,7 @@ These references use the final source rather than the baseline:
 - Tiles/icons: `launcher/app/src/main/java/com/gathin/tvhome/AppAdapter.java:458`,
   `launcher/app/src/main/java/com/gathin/tvhome/AppLibraryDialog.java:73`.
 - Clock and presets: `launcher/app/src/main/java/com/gathin/tvhome/ClockScene.java:38`,
-  `launcher/app/src/main/java/com/gathin/tvhome/ThemePresets.java:29`.
+  `launcher/app/src/main/java/com/gathin/tvhome/ThemePresets.java:30`.
 - Contrast: `launcher/app/src/main/java/com/gathin/tvhome/ThemePalette.java:122`,
   `launcher/app/src/main/java/com/gathin/tvhome/ThemePalette.java:136`.
 
@@ -274,7 +274,7 @@ for name in light dark coloured; do
   tools/theme.sh "work/theme-fixtures/$name"
   tv --screenshot "shots/$name-home.png" HOME --wait 2
   tv 'am start -n com.gathin.tvhome/.MainActivity -a com.gathin.tvhome.action.LAUNCHER_SETTINGS'
-  tv --screenshot "shots/$name-settings.png" --wait 2
+  tv --screenshot "shots/$name-settings.png" DPAD_UP --wait 2
   tv 'input keyevent KEYCODE_BACK'
   for i in 0 1 2 3 4 5 6; do
     tv 'am start -n com.gathin.tvhome/.MainActivity -a com.gathin.tvhome.action.LAUNCHER_SETTINGS'
@@ -287,7 +287,7 @@ done
 tools/theme.sh --reset
 tv --screenshot shots/reset-home.png HOME --wait 2
 tv 'am start -n com.gathin.tvhome/.MainActivity -a com.gathin.tvhome.action.LAUNCHER_SETTINGS'
-tv --screenshot shots/reset-settings.png --wait 2
+tv --screenshot shots/reset-settings.png DPAD_UP --wait 2
 ```
 
 Wait for the expected screen before capturing if the TV is slower than these waits.
