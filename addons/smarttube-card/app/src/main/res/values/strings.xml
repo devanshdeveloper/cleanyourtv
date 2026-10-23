@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartTube Link</string>
+    <string name="not_installed_title">SmartTube is not installed</string>
+    <string name="not_installed_body">This card is a fast launcher shortcut for SmartTube. To use it, please install the official SmartTube app from the official project releases page:\n\nSmartTube / SmartTubeNext\nby yuliskov</string>
+    <string name="btn_close">Close</string>
+</resources>
