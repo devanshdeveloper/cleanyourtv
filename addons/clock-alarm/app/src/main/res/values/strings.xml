@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Clock &amp; Alarm</string>
+    <string name="tab_clock">Clock</string>
+    <string name="tab_alarms">Alarms</string>
+    <string name="tab_timer">Timer</string>
+    <string name="tab_stopwatch">Stopwatch</string>
+
+    <string name="btn_add_alarm">Add Alarm</string>
+    <string name="btn_dismiss">Dismiss</string>
+    <string name="btn_snooze">Snooze (+10m)</string>
+    <string name="btn_start">Start</string>
+    <string name="btn_pause">Pause</string>
+    <string name="btn_reset">Reset</string>
+    <string name="no_alarms">No alarms set. Use Add Alarm to create one.</string>
+    <string name="alarm_label_prompt">Enter alarm label:</string>
+    <string name="alarm_hour_prompt">Hour (0-23):</string>
+    <string name="alarm_minute_prompt">Minute (0-59):</string>
+    <string name="ring_title">ALARM</string>
+    <string name="alarm_saved">Alarm scheduled</string>
+    <string name="timer_done">Timer finished!</string>
+</resources>
