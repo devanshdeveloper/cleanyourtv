@@ -10,11 +10,33 @@ the core bigger or change how it behaves. You install an add-on only if you want
 | Add-on | What it does | Author | Tested on | Permissions |
 |---|---|---|---|---|
 | [Frigate Glance](frigate-glance/) | Frigate camera pop-ups over whatever is playing | NickLD | TCL 65Q650G | overlay, accessibility (card keys), network, foreground service |
-| [Capacity Stats](capacity-stats/) | Available/total and used/total RAM; available/total storage | [lionlev21](https://github.com/lionlev21) | Android TV 12 (model private) | None |
+| [Live Channels](live-channels/) | TV inputs (HDMI/AV), tuner, and installed apps launcher with favorites | [@devanshdeveloper](https://github.com/devanshdeveloper) | Mi TV 4A, Android TV 9 | None |
+| [TV Manager](tv-manager/) | System dashboard, storage, app manager, ADB hygiene, downloads manager, and secure settings presets (absorbs Capacity Stats) | [@devanshdeveloper](https://github.com/devanshdeveloper) | Mi TV 4A, Android TV 9 | `REQUEST_INSTALL_PACKAGES`, `WRITE_SECURE_SETTINGS` (optional manual grant) |
+| [SmartTube Link](smarttube-card/) | Quick launcher shortcut to the official SmartTube app | [@devanshdeveloper](https://github.com/devanshdeveloper) | Mi TV 4A, Android TV 9 | None |
+| [Clock & Alarm](clock-alarm/) | Large digital clock, alarms, countdown timer, and stopwatch | [@devanshdeveloper](https://github.com/devanshdeveloper) | Mi TV 4A, Android TV 9 | `RECEIVE_BOOT_COMPLETED`, `WAKE_LOCK`, `VIBRATE`, `SCHEDULE_EXACT_ALARM` |
 | [Weather](weather/) | The weather for one city: now, US air quality and the next three days, from Open-Meteo (no key) | [@Sumyabazar1](https://github.com/Sumyabazar1) | Hisense SmartTV 4K FFM (lushan), Google TV 12 | `INTERNET` |
 | [Photo Prints](photo-prints/) | Your own photos as a screensaver: dated prints dealt in on a time-of-day sky, and a card that starts the slideshow | [@shivamsingh262](https://github.com/shivamsingh262) | Sony BRAVIA KD-65X82L (Google TV 12) | None |
 | [Photo screensaver](photo-screensaver/) | Your own pictures and MP4 clips as the TV's screensaver and as a card, slowly zooming and crossfading (20 s each by default); optional time, photo dates, prints on a sky and weather | [JorickGU](https://github.com/JorickGU) | TCL 43P69K (Google TV 12) | `INTERNET` and coarse location, only with the weather option on |
 | [Prayer Times](prayer-times/) | Today's prayer times for one city from Aladhan (no key), the next prayer with a countdown, Gregorian and Hijri dates | [@majnioui](https://github.com/majnioui) | Xiaomi TV (MiTV-MOOR2), Google TV 11 | `INTERNET` |
+
+## External & Community Modules
+
+| Project | What it does | Repository | Tested on |
+|---|---|---|---|
+| Retro | Classic retro arcade and game launcher card | [udhaykumarbala/tv-vibehack-retro](https://github.com/udhaykumarbala/tv-vibehack-retro) | Android TV 9+ |
+
+Retro is maintained in its own repository as a separate signed app declaring a module card (`spec="1"`).
+
+### Install & Approval Steps for External Cards
+
+1. Build or download the APK from the external project's repository.
+2. Install the APK on the TV via ADB:
+   ```bash
+   adb install -r <path-to-apk>
+   ```
+3. Press **Home** on the TV remote.
+4. When the TV prompt asks whether to show the new card, choose **Show card** (focused first is "Keep hidden").
+5. To change your decision later or re-hide/show the card at any time, hold **OK** on the Settings pill in the top menu to open **Module cards**.
 
 A widget, an info tile, a storage or smart-home card: if it can live as its own small app, it can live
 here. See the rules below.
