@@ -517,6 +517,8 @@ public final class LauncherSettingsActivity extends Activity {
                     dialog.dismiss();
                     if (which == THEME_PRESETS.length) {
                         choices.edit().remove("theme_preset").apply();
+                        File extDest = new File(getExternalFilesDir(null), Config.FILE_NAME);
+                        if (extDest.exists()) extDest.delete();
                         File dest = new File(getFilesDir(), Config.FILE_NAME);
                         if (dest.exists()) dest.delete();
                     } else {
@@ -534,24 +536,21 @@ public final class LauncherSettingsActivity extends Activity {
 
     private void applyThemePreset(String preset) {
         try {
-            File source = new File(getExternalFilesDir(null), "../../themes/" + preset + "/config.json");
-            if (!source.exists()) {
-                source = new File("/sdcard/Android/data/com.gathin.tvhome/files/config.json");
+            File extDest = new File(getExternalFilesDir(null), Config.FILE_NAME);
+            File intDest = new File(getFilesDir(), Config.FILE_NAME);
+            String minimalJson = "{\"columns\":5}";
+            if ("six-columns".equals(preset)) minimalJson = "{\"columns\":6}";
+            else if ("aurora".equals(preset)) minimalJson = "{\"background_color\":\"#0A1118\",\"sky_intensity\":60}";
+            else if ("glass".equals(preset)) minimalJson = "{\"dock_glass\":true,\"top_menu\":true}";
+            else if ("scenes".equals(preset)) minimalJson = "{\"sky_intensity\":60,\"cinematic_home\":true}";
+            else if ("dussehra".equals(preset)) minimalJson = "{\"sky_intensity\":40}";
+            byte[] bytes = minimalJson.getBytes(StandardCharsets.UTF_8);
+            if (extDest.getParentFile() != null) extDest.getParentFile().mkdirs();
+            try (FileOutputStream out = new FileOutputStream(extDest)) {
+                out.write(bytes);
             }
-            File dest = new File(getFilesDir(), Config.FILE_NAME);
-            if (source.exists()) {
-                byte[] data = java.nio.file.Files.readAllBytes(source.toPath());
-                try (FileOutputStream out = new FileOutputStream(dest)) {
-                    out.write(data);
-                }
-            } else {
-                String minimalJson = "{\"columns\":4}";
-                if ("six-columns".equals(preset)) minimalJson = "{\"columns\":6}";
-                else if ("aurora".equals(preset)) minimalJson = "{\"background_color\":\"#0A1118\",\"sky_intensity\":60}";
-                else if ("glass".equals(preset)) minimalJson = "{\"dock_glass\":true,\"top_menu\":true}";
-                try (FileOutputStream out = new FileOutputStream(dest)) {
-                    out.write(minimalJson.getBytes(StandardCharsets.UTF_8));
-                }
+            try (FileOutputStream out = new FileOutputStream(intDest)) {
+                out.write(bytes);
             }
         } catch (IOException ignored) {
         }
